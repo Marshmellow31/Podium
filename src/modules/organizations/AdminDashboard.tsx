@@ -51,7 +51,7 @@ export default function AdminDashboard() {
       <Stack direction="row" alignItems="flex-end" justifyContent="space-between" flexWrap="wrap" gap={2} sx={{ mb: 3.5 }}>
         <Box>
           <Eyebrow>{activeOrg?.name ?? '…'} · {activeOrg?.plan ?? ''}</Eyebrow>
-          <Typography variant="h2" sx={{ fontSize: 'clamp(30px, 3.8vw, 44px)', mt: 1 }}>Organization</Typography>
+          <Typography variant="h2" sx={{ fontSize: { xs: 30, md: 44 }, mt: 1 }}>Organization</Typography>
         </Box>
         <Button variant="contained" sx={{ height: 52 }} startIcon={<Icon name="add" size={20} />}>
           New challenge

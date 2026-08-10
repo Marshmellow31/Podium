@@ -98,8 +98,8 @@ export default function SignIn() {
 
       <Box sx={{ width: '100%', maxWidth: 440, mx: 'auto' }}>
         <Box component="form" onSubmit={(event) => void submit(event)} noValidate sx={{ p: { xs: 3, sm: 4 }, borderRadius: `${radius.panel}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, boxShadow: shadow.raised }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: c.primaryInk, mb: 1.25 }}>{tab === 'signin' ? 'Welcome back' : 'New to Forge'}</Typography>
-          <Typography component="h1" sx={{ fontSize: { xs: 29, sm: 33 }, fontWeight: 760, lineHeight: 1.1, letterSpacing: '-.04em', mb: 1 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0, textTransform: 'uppercase', color: c.primaryInk, mb: 1.25 }}>{tab === 'signin' ? 'Welcome back' : 'New to Forge'}</Typography>
+          <Typography component="h1" sx={{ fontSize: { xs: 29, sm: 33 }, fontWeight: 760, lineHeight: 1.1, letterSpacing: 0, mb: 1 }}>
             {tab === 'signin' ? 'Sign in to your account' : 'Create your account'}
           </Typography>
           <Typography sx={{ fontSize: 13.5, lineHeight: 1.6, color: c.inkMuted, mb: 3 }}>
@@ -162,7 +162,7 @@ function Brand() {
   return (
     <Stack component={Link} to="/" direction="row" alignItems="center" gap={1.1} sx={{ color: 'inherit', textDecoration: 'none' }}>
       <Box sx={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: '12px', background: c.inverse, color: c.primary, fontSize: 20, fontWeight: 800 }}>F</Box>
-      <Typography sx={{ fontSize: 22, fontWeight: 750, letterSpacing: '-.03em' }}>Forge</Typography>
+      <Typography sx={{ fontSize: 22, fontWeight: 750, letterSpacing: 0 }}>Forge</Typography>
     </Stack>
   );
 }

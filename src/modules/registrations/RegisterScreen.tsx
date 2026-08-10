@@ -5,10 +5,10 @@ import {
   DialogContent, Stack, Typography, CircularProgress,
 } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
-import { useChallengeBySlug, useFormSchemas } from '@core/firebase/hooks';
+import { useChallengeBySlug, usePublishedFormSchemas } from '@core/firebase/hooks';
 import { useSubmitRegistration } from '@core/firebase/mutations';
 import { useAuth, usePermissions } from '@core/auth';
-import { demoOrgId } from '@core/firebase/app';
+import { defaultOrgId } from '@core/firebase/app';
 import { NotSignedInError } from '@core/sync';
 import { FormRenderer, useFormEngine } from '@shared/ui/forms/FormRenderer';
 import { UploadProvider } from '@shared/ui/forms/UploadContext';
@@ -20,7 +20,7 @@ import { c, radius, mono } from '@shared/design/tokens';
 export default function RegisterScreen() {
   const { slug } = useParams();
   const { data: challenge, isLoading } = useChallengeBySlug(slug);
-  const { data: schemas = {} } = useFormSchemas();
+  const { data: schemas = {} } = usePublishedFormSchemas();
   const schema = challenge ? schemas[challenge.formSchemaId] : undefined;
   const [done, setDone] = useState(false);
   const { user } = useAuth();
@@ -52,8 +52,8 @@ export default function RegisterScreen() {
     submitMutation.mutate(
       {
         userId: user?.uid,
-        displayName: user?.displayName ?? 'Demo participant',
-        email: user?.email ?? 'demo@forge.app',
+        displayName: user?.displayName ?? '',
+        email: user?.email ?? '',
         formSchemaId: schema.id,
         formSchemaVersion: schema.version,
         // Hidden answers are dropped before storage — no ghost data.
@@ -81,7 +81,7 @@ export default function RegisterScreen() {
           <Typography noWrap sx={{ fontSize: 12, color: c.inkFaint }}>
             Entry form · {challenge.title}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             {schema.title}
           </Typography>
         </Box>
@@ -111,7 +111,7 @@ export default function RegisterScreen() {
           so it arrives as context. See shared/ui/forms/UploadContext.tsx. */}
       <UploadProvider
         value={{
-          orgId: demoOrgId(),
+          orgId: defaultOrgId(),
           challengeId: challenge?.id ?? '',
           getIdToken: () => (user ? user.getIdToken() : Promise.resolve(null)),
         }}
@@ -133,7 +133,7 @@ export default function RegisterScreen() {
             </Typography>
             <Typography sx={{ fontSize: 13, lineHeight: 1.5, color: c.errorBody }}>
               {needsSignIn
-                ? 'The demo is read-only until you sign in. Nothing you typed has been lost.'
+                ? 'Sign in to submit. Nothing you typed has been lost.'
                 : error instanceof Error
                   ? error.message
                   : String(error)}
@@ -193,7 +193,7 @@ export default function RegisterScreen() {
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Entry received
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

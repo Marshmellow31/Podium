@@ -113,7 +113,6 @@ export default defineConfig({
       '@modules': path.resolve(__dirname, 'src/modules'),
       '@core': path.resolve(__dirname, 'src/core'),
       '@shared': path.resolve(__dirname, 'src/shared'),
-      '@mock': path.resolve(__dirname, 'src/mock'),
       '@config': path.resolve(__dirname, 'src/config'),
     },
   },

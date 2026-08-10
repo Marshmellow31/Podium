@@ -67,7 +67,7 @@ export default function Settings() {
           <Stack direction="row" alignItems="center" gap={2} sx={{ mt: 2, mb: 3 }}>
             <OrgLogo logoUrl={org?.logoUrl} initials={org?.initials ?? '—'} size={56} radius={18} />
             <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
                 {org?.name ?? 'Unknown organization'}
               </Typography>
               <Typography sx={{ fontSize: 13, color: c.inkMuted }}>

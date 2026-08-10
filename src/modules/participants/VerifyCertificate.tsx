@@ -53,7 +53,7 @@ export default function VerifyCertificate() {
               <Blobs variant="detail" />
               <Box sx={{ position: 'relative' }}>
                 <Icon name="verified" size={48} fill color={c.successInk} />
-                <Typography sx={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.02em', mt: 1.5, color: c.onSuccess }}>
+                <Typography sx={{ fontSize: 24, fontWeight: 700, letterSpacing: 0, mt: 1.5, color: c.onSuccess }}>
                   This certificate is genuine
                 </Typography>
                 <Typography sx={{ fontSize: 14, color: c.onSuccess, mt: 1, opacity: 0.85 }}>
@@ -64,7 +64,7 @@ export default function VerifyCertificate() {
 
             <Box sx={panelSx}>
               <Eyebrow>Awarded to</Eyebrow>
-              <Typography sx={{ fontSize: 26, fontWeight: 700, letterSpacing: '-.02em', mb: 2.5 }}>
+              <Typography sx={{ fontSize: 26, fontWeight: 700, letterSpacing: 0, mb: 2.5 }}>
                 {certificate.award}
               </Typography>
 

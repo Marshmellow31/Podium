@@ -157,7 +157,7 @@ export function DriveLinkInput({
 
       {purpose === 'image' && previewUrl && effective.ok && (
         <Box sx={{ mt: 2 }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: c.inkFaint, mb: 1 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', color: c.inkFaint, mb: 1 }}>
             Preview
           </Typography>
           {/* Rendered from the same URL participants will get, so a sharing

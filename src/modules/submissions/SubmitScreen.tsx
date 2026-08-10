@@ -6,10 +6,10 @@ import {
 } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
 import { DriveLinkInput } from '@shared/ui/DriveLinkInput';
-import { useChallengeBySlug, useFormSchemas, useSubmissions } from '@core/firebase/hooks';
+import { useChallengeBySlug, usePublishedFormSchemas, useSubmissions } from '@core/firebase/hooks';
 import { useSubmitEntry } from '@core/firebase/mutations';
 import { useAuth } from '@core/auth';
-import { demoOrgId } from '@core/firebase/app';
+import { defaultOrgId } from '@core/firebase/app';
 import { NotSignedInError } from '@core/sync';
 import { FormRenderer, useFormEngine } from '@shared/ui/forms/FormRenderer';
 import { UploadProvider } from '@shared/ui/forms/UploadContext';
@@ -40,7 +40,7 @@ export default function SubmitScreen() {
   const { slug } = useParams();
   const { user } = useAuth();
   const { data: challenge, isLoading } = useChallengeBySlug(slug);
-  const { data: schemas = {} } = useFormSchemas();
+  const { data: schemas = {} } = usePublishedFormSchemas();
   const { data: submissions = [] } = useSubmissions(challenge?.id);
   const schema = challenge ? schemas[challenge.formSchemaId] : undefined;
 
@@ -126,7 +126,7 @@ export default function SubmitScreen() {
           <Typography noWrap sx={{ fontSize: 12, color: c.inkFaint }}>
             Submission · {challenge.title}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             Your entry
           </Typography>
         </Box>
@@ -187,7 +187,7 @@ export default function SubmitScreen() {
           so it arrives as context. See shared/ui/forms/UploadContext.tsx. */}
       <UploadProvider
         value={{
-          orgId: demoOrgId(),
+          orgId: defaultOrgId(),
           challengeId: challenge?.id ?? '',
           getIdToken: () => (user ? user.getIdToken() : Promise.resolve(null)),
         }}
@@ -243,7 +243,7 @@ export default function SubmitScreen() {
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Entry submitted
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

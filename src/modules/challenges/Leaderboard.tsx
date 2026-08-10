@@ -42,7 +42,7 @@ function visibilityOf(challenge: Challenge): { visible: boolean; title: string; 
   }
 }
 
-const MEDAL = ['#E5CB63', '#C7C7C7', '#D0A06B'];
+const MEDAL = [c.accent, '#C7C7C7', '#D0A06B'];
 
 export default function Leaderboard() {
   const { slug } = useParams();
@@ -71,7 +71,7 @@ export default function Leaderboard() {
         </IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Eyebrow>Leaderboard</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
             {challenge.title}
           </Typography>
         </Box>

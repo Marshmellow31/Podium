@@ -123,7 +123,7 @@ export function JudgeQueue() {
                 <Icon name="image" size={34} color="rgba(36,26,0,.4)" />
                 <Box
                   component="span"
-                  sx={{ position: 'absolute', top: 12, left: 12, fontFamily: mono, fontSize: 11, background: 'rgba(255,253,246,.86)', px: 1, py: 0.5, borderRadius: '8px' }}
+                  sx={{ position: 'absolute', top: 12, left: 12, fontFamily: mono, fontSize: 11, background: 'rgba(250,250,250,.9)', px: 1, py: 0.5, borderRadius: '8px' }}
                 >
                   {labelFor(s, blind)}
                 </Box>
@@ -211,7 +211,7 @@ export function ScoringScreen() {
           <Typography sx={{ fontSize: 12, color: c.inkFaint }}>
             {blind ? 'Blind review' : 'Review'}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             {labelFor(sub, blind)}
           </Typography>
         </Box>
@@ -232,7 +232,7 @@ export function ScoringScreen() {
             <Box sx={{ fontFamily: mono, fontSize: 12, color: c.inkFaint, mb: 1 }}>
               {labelFor(sub, blind)} · shot on {String(sub.answers.shot_on ?? '—')}
             </Box>
-            <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
               {String(sub.answers.title ?? 'Untitled')}
             </Typography>
             <Typography sx={{ fontSize: 14, lineHeight: 1.6, color: c.inkMuted, mb: 2.5 }}>
@@ -286,7 +286,7 @@ export function ScoringScreen() {
             sx={{ borderRadius: `${radius.tile}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, p: '18px 20px', mb: 2.5 }}
           >
             <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Weighted total</Typography>
-            <Box sx={{ fontFamily: mono, fontSize: 26, fontWeight: 700, letterSpacing: '-.02em', color: complete ? c.ink : c.inkFaint }}>
+            <Box sx={{ fontFamily: mono, fontSize: 26, fontWeight: 700, letterSpacing: 0, color: complete ? c.ink : c.inkFaint }}>
               {complete ? weighted.toFixed(1) : '—'}
             </Box>
           </Stack>
@@ -349,7 +349,7 @@ export function ScoringScreen() {
       <Dialog open={recuse} onClose={() => setRecuse(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ p: 3.5 }}>
           <Icon name="front_hand" size={26} color={c.primaryIcon} style={{ display: 'block', marginBottom: 12 }} />
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Recuse yourself
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2.5 }}>
@@ -370,7 +370,7 @@ export function ScoringScreen() {
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Score recorded
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

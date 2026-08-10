@@ -98,7 +98,7 @@ export default function MyEntries() {
               </Box>
 
               <Box sx={{ flex: 1, minWidth: 180 }}>
-                <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 0.5 }}>
                   {ch.title}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: c.inkMuted }}>
@@ -109,7 +109,7 @@ export default function MyEntries() {
               <StatusPill status={sub.status} label={sub.status === 'underReview' ? 'under review' : sub.status} />
 
               <Box sx={{ textAlign: 'right', minWidth: 88 }}>
-                <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+                <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
                   {sub.score === null ? <Box component="span" sx={{ color: c.inkFaint, fontSize: 15 }}>—</Box> : <Num size={20}>{sub.score.toFixed(1)}</Num>}
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: c.inkFaint }}>

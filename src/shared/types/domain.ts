@@ -2,7 +2,6 @@
  * UI-facing domain types.
  *
  * These are what screens and components consume. Two producers exist:
- *   • `src/mock/data.ts`        — the in-memory demo fixture
  *   • `src/core/firebase/mappers.ts` — Firestore documents, converted
  *
  * Dates are display strings here, never `Timestamp` — no screen should import

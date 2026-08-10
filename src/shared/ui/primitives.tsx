@@ -65,7 +65,7 @@ export function Hero({
 export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
   return (
     <Box sx={{ mb: sub ? 3 : 2 }}>
-      <Typography variant="h2" sx={{ fontSize: 'clamp(30px, 3.8vw, 44px)' }}>
+      <Typography variant="h2" sx={{ fontSize: { xs: 30, md: 44 } }}>
         {children}
       </Typography>
       {sub && (
@@ -130,7 +130,7 @@ export function StatTile({
         <Eyebrow>{label}</Eyebrow>
       )}
       <Stack direction="row" alignItems="baseline" spacing={1} sx={{ mt: icon ? 1.25 : 1.5 }}>
-        <Typography sx={{ fontSize: 32, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1 }}>
+        <Typography sx={{ fontSize: 32, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
           {value}
         </Typography>
         {delta !== undefined && (
@@ -160,7 +160,7 @@ export function StatusPill({ status, label }: { status: string; label?: string }
       sx={{
         fontSize: 11,
         fontWeight: 700,
-        letterSpacing: '.04em',
+        letterSpacing: 0,
         textTransform: 'uppercase',
         px: 1.25,
         py: 0.5,
@@ -251,7 +251,7 @@ export function EmptyState({
       <Blobs variant="empty" />
       <Box sx={{ position: 'relative' }}>
         <Icon name={icon} size={56} color={c.primaryIcon} />
-        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mt: 2, mb: 1 }}>
+        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mt: 2, mb: 1 }}>
           {title}
         </Typography>
         {body && (
@@ -273,7 +273,7 @@ export const panelSx = {
   p: 3,
 } as const;
 
-/** Tinted container panel (the design's #F5EDDA blocks). */
+/** Tinted container panel for low-emphasis grouped content. */
 export const containerSx = {
   borderRadius: `${radius.panel}px`,
   background: c.surfaceContainer,
@@ -299,7 +299,7 @@ export function TableHead({ cols }: { cols: { label: string; width?: number; ali
         background: c.surfaceContainer,
         fontSize: 11,
         fontWeight: 700,
-        letterSpacing: '.08em',
+        letterSpacing: 0,
         textTransform: 'uppercase',
         color: c.inkFaint,
       }}

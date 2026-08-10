@@ -52,7 +52,7 @@ export default function ChallengeControlRoom() {
       <Stack direction="row" alignItems="flex-end" justifyContent="space-between" flexWrap="wrap" gap={2} sx={{ mb: 2.5 }}>
         <Box>
           <Stack direction="row" alignItems="center" gap={1.25} flexWrap="wrap" sx={{ mb: 0.75 }}>
-            <Typography variant="h2" sx={{ fontSize: 'clamp(28px, 3.4vw, 40px)' }}>{ch.title}</Typography>
+            <Typography variant="h2" sx={{ fontSize: { xs: 28, md: 40 } }}>{ch.title}</Typography>
             <StatusPill status={ch.status} />
           </Stack>
           <Typography sx={{ fontSize: 14, color: c.inkMuted }}>

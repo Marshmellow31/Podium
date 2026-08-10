@@ -3,7 +3,7 @@ import { Box, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui
 import { useTheme } from '@mui/material/styles';
 import { Icon } from '@shared/ui/Icon';
 import { c, radius, shadow, ease } from '@shared/design/tokens';
-import { useCurrentUser, useMyRegistrations, useChallenges } from '@core/firebase/hooks';
+import { useCurrentUser, useMyRegistrations, usePublicChallenges } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 import { NotificationBell } from '@shared/ui/NotificationBell';
 
@@ -94,7 +94,7 @@ const SCREEN_TITLES: { test: (p: string) => boolean; title: string }[] = [
 const MODE_LABEL: Record<string, string> = {
   participant: 'Entering challenges',
   organizer: 'Organizing',
-  demo: 'Exploring the demo',
+  demo: 'Browsing Forge',
 };
 
 const isActive = (item: NavItem, path: string) =>
@@ -111,10 +111,10 @@ export default function AppShell() {
   const primaryTo = inOrgContext ? '/org/challenges/new' : '/discover';
   const screenTitle = SCREEN_TITLES.find((s) => s.test(pathname))?.title ?? 'Forge';
   const { user, signOutNow, mode, adminUnlocked } = useAuth();
-  const { data: profile } = useCurrentUser(user?.uid ?? 'u_self');
+  const { data: profile } = useCurrentUser(user?.uid);
   const { data: myRegistrations = [] } = useMyRegistrations(user?.uid);
-  const { data: challenges = [] } = useChallenges();
-  const displayName = user?.displayName ?? profile?.name ?? 'Demo viewer';
+  const { data: challenges = [] } = usePublicChallenges();
+  const displayName = user?.displayName ?? profile?.name ?? 'Guest';
   const initials = displayName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   // Real counts, from data already in the cache. A zero renders as no badge
@@ -166,10 +166,10 @@ export default function AppShell() {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: '8px 16px 20px' }} component={Link} to="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: '12px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 19, fontWeight: 800, letterSpacing: '-.02em' }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: '12px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 19, fontWeight: 800, letterSpacing: 0 }}>
               F
             </Box>
-            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>Forge</Typography>
+            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>Forge</Typography>
           </Stack>
 
           <Box
@@ -290,7 +290,7 @@ export default function AppShell() {
                 <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 17, fontWeight: 800 }}>
                   F
                 </Box>
-                <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+                <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
                   {screenTitle}
                 </Typography>
               </Stack>

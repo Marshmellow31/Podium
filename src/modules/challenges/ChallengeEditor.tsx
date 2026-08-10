@@ -268,7 +268,7 @@ export default function ChallengeEditor() {
         </IconButton>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Eyebrow>{isNew ? 'New challenge' : 'Editing'}</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
             {draft.title || 'Untitled challenge'}
           </Typography>
         </Box>

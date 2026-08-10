@@ -201,7 +201,7 @@ function Frame({
             </Box>
           )}
           {title && (
-            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>{title}</Typography>
+            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>{title}</Typography>
           )}
           {body && (
             <Typography sx={{ fontSize: 14, color: c.inkMuted, lineHeight: 1.65 }}>{body}</Typography>

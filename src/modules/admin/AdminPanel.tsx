@@ -165,7 +165,7 @@ export default function AdminPanel() {
       >
         <Box>
           <Eyebrow>{org?.name ?? '…'} · admin panel</Eyebrow>
-          <Typography variant="h2" sx={{ fontSize: 'clamp(30px, 3.8vw, 44px)', mt: 1 }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: 30, md: 44 }, mt: 1 }}>
             Control panel
           </Typography>
         </Box>
@@ -478,7 +478,7 @@ export default function AdminPanel() {
                   </Box>
                   {!allowed && <Icon name="lock" size={17} color={c.inkFaint} />}
                 </Stack>
-                <Typography sx={{ fontSize: 15.5, fontWeight: 700, mb: 0.75, letterSpacing: '-.01em' }}>
+                <Typography sx={{ fontSize: 15.5, fontWeight: 700, mb: 0.75, letterSpacing: 0 }}>
                   {section.title}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: c.inkMuted, lineHeight: 1.55 }}>

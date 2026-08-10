@@ -5,7 +5,7 @@ import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { Blobs, EmptyState, Eyebrow, Num, StatTile } from '@shared/ui/primitives';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { OrgLogo } from '@shared/ui/OrgLogo';
-import { useOrg, useChallenges } from '@core/firebase/hooks';
+import { useOrg, usePublicChallenges } from '@core/firebase/hooks';
 import { c, radius } from '@shared/design/tokens';
 
 /**
@@ -24,9 +24,9 @@ import { c, radius } from '@shared/design/tokens';
 export default function PublicOrgPage() {
   const { slug } = useParams();
   const { data: org, isLoading, error } = useOrg();
-  const { data: challenges = [] } = useChallenges();
+  const { data: challenges = [] } = usePublicChallenges();
 
-  // The demo serves a single org, so the slug is validated rather than used to
+  // This deployment serves a single org, so the slug is validated rather than used to
   // look one up. When multi-org lands this becomes a query by slug and nothing
   // else on this screen changes.
   const matches = !slug || !org || org.slug === slug;
@@ -52,7 +52,7 @@ export default function PublicOrgPage() {
           <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, color: c.primary, display: 'grid', placeItems: 'center', fontSize: 17, fontWeight: 800 }}>
             F
           </Box>
-          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: '-.02em' }}>Forge</Typography>
+          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: 0 }}>Forge</Typography>
         </Box>
         <Box sx={{ flex: 1 }} />
         <Button component={Link} to="/discover" variant="text">Discover</Button>
@@ -82,7 +82,7 @@ export default function PublicOrgPage() {
                   <OrgLogo logoUrl={org.logoUrl} initials={org.initials} size={72} radius={22} />
                   <Box sx={{ minWidth: 0 }}>
                     <Eyebrow>{org.type}</Eyebrow>
-                    <Typography sx={{ fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1.1 }}>
+                    <Typography sx={{ fontSize: { xs: 26, md: 40 }, fontWeight: 650, letterSpacing: 0, lineHeight: 1.15 }}>
                       {org.name}
                     </Typography>
                     <Typography sx={{ fontSize: 14, color: c.inkMuted, mt: 0.5 }}>
@@ -98,7 +98,7 @@ export default function PublicOrgPage() {
                 <StatTile label="Entrants" value={entrants.toLocaleString()} icon="group" />
               </Box>
 
-              <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 2 }}>
+              <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 2 }}>
                 Open for entries
               </Typography>
               {live.length === 0 ? (
@@ -117,7 +117,7 @@ export default function PublicOrgPage() {
 
               {past.length > 0 && (
                 <>
-                  <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 2 }}>
+                  <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 2 }}>
                     Finished
                   </Typography>
                   <Box sx={{ display: 'grid', gap: 2.5, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>

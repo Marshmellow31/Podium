@@ -142,7 +142,7 @@ export default function PublishResults() {
         </IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Eyebrow>Publish results</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
             {challenge?.title ?? '…'}
           </Typography>
         </Box>
@@ -293,7 +293,7 @@ export default function PublishResults() {
               <Icon name="emoji_events" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Results published
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted }}>

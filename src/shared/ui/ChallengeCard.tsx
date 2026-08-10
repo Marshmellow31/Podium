@@ -60,10 +60,10 @@ export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: str
             bottom: 14,
             fontSize: 11,
             fontWeight: 700,
-            letterSpacing: '.06em',
+            letterSpacing: 0,
             textTransform: 'uppercase',
             color: t.onPrimaryContainer,
-            background: 'rgba(255,253,246,.82)',
+            background: 'rgba(250,250,250,.88)',
             px: 1.25,
             py: 0.6,
             borderRadius: '8px',
@@ -74,7 +74,7 @@ export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: str
       </CoverImage>
 
       <Box sx={{ p: '18px 20px 20px' }}>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', mb: 1, lineHeight: 1.3 }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 1, lineHeight: 1.3 }}>
           {ch.title}
         </Typography>
         <Typography

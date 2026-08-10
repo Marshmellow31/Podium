@@ -48,7 +48,7 @@ export function QueryBoundary({
           </Box>
           <Box sx={{ fontSize: 13, lineHeight: 1.55, color: c.errorBody }}>
             {denied
-              ? 'Security rules rejected this read. If the data was just seeded, check that VITE_DEMO_ORG_ID matches the seeded organization and that firestore.rules is deployed.'
+              ? 'Security rules rejected this read. Check that VITE_DEFAULT_ORG_ID matches the deployed organization and that firestore.rules is current.'
               : message}
           </Box>
         </Box>

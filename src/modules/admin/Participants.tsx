@@ -96,7 +96,7 @@ export default function Participants() {
     <>
       <Stack direction="row" alignItems="flex-end" justifyContent="space-between" flexWrap="wrap" gap={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h2" sx={{ fontSize: 'clamp(26px, 3.2vw, 38px)' }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: 26, md: 38 } }}>
             Participants
           </Typography>
           <Typography sx={{ fontSize: 14, color: c.inkMuted, mt: 0.5 }}>
@@ -406,14 +406,14 @@ function ParticipantDialog({
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 1 }}>
-        <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+        <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
           {entry.name}
         </Typography>
         <Typography sx={{ fontSize: 13, color: c.inkMuted }}>{entry.email}</Typography>
       </DialogTitle>
 
       <DialogContent>
-        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
           Entries in this organization
         </Typography>
         <Stack gap={1} sx={{ mb: 3 }}>
@@ -439,7 +439,7 @@ function ParticipantDialog({
 
         {answers.length > 0 && (
           <>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
               What they answered
             </Typography>
             <Stack gap={0.75} sx={{ mb: 3 }}>
@@ -457,7 +457,7 @@ function ParticipantDialog({
           </>
         )}
 
-        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
           Membership in this organization
         </Typography>
         {membership ? (
@@ -515,7 +515,7 @@ function ParticipantDialog({
 
         <Divider sx={{ mb: 2.5 }} />
 
-        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', color: c.inkFaint, mb: 1.5 }}>
           This entry · {entry.challengeTitle}
         </Typography>
         <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mb: 2 }}>

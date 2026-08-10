@@ -70,34 +70,8 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
     }
 
-    // ---- Public browsing (ADR-016, narrowed by ADR-027) ------------------
-    // A visitor with no account can browse a public competition. That is the
-    // whole of it now.
-    //
-    // It used to be much more. `demoReadable` returned true for the entirety of
-    // `org_demo`, making every collection beneath it world-readable — members,
-    // registrations, submissions, reviews, scores and the audit log. ADR-016
-    // took that trade deliberately, to avoid 700 demo viewers minting 700
-    // throwaway anonymous accounts, and it was sound while the only thing in
-    // there was fixture data from `src/mock/data.ts`. The comment that lived
-    // here said, in as many words, to delete it before real customer data
-    // arrived. Real entrants arrived; nobody deleted it. Their names, email
-    // addresses and answers were readable by anyone who knew the project id.
-    //
-    // What replaces it is scoped by what a signed-out visitor actually needs:
-    // the organization, its public challenges, the entry form, the rubric, the
-    // leaderboard. Every one of those is content an organiser published on
-    // purpose. Nothing here reaches a person's data.
-    //
-    // `demoWriter` is gone entirely rather than stubbed, so nothing reads as if
-    // it might come back. It let any signed-in account write reviews and scores
-    // in this org — score manipulation on a live competition, not convenience.
-    //
-    // Before adding a call site: the test suite has a block named after this
-    // ADR that spells out, per collection, what would be published.
-    function isDemoOrg(orgId) { return orgId == 'org_demo'; }
-    function publicBrowse(orgId) { return isDemoOrg(orgId); }
-    // ----------------------------------------------------------------------
+    // Public catalog access is derived from document status and challenge
+    // visibility below. No tenant id receives special treatment.
 
     // ---- Collection-group read: "my registrations" (ADR-018) --------------
     // A nested `match /organizations/{orgId}/…/registrations/{rid}` rule does
@@ -157,7 +131,7 @@ service cloud.firestore {
     }
 
     match /organizations/{orgId} {
-      allow read: if isMember(orgId) || publicBrowse(orgId) || resource.data.status == 'active';
+      allow read: if isMember(orgId) || resource.data.status == 'active';
       allow create: if isSignedIn() && request.resource.data.ownerId == uid();
       allow update: if hasPerm(orgId, 'org.update');
       allow delete: if false;
@@ -249,7 +223,7 @@ service cloud.firestore {
       }
 
       match /workspaces/{wid} {
-        allow read: if isMember(orgId) || publicBrowse(orgId);
+        allow read: if isMember(orgId);
         // These are three distinct permissions in the catalog (SPEC_RBAC §2).
         // An earlier version checked `workspace.manage`, which no role grants
         // and which therefore denied every write — a rule can be wrong by
@@ -275,7 +249,7 @@ service cloud.firestore {
       match /formSchemas/{schemaId} {
         // The questionnaire, not the answers. A signed-out visitor has to read
         // it to see what a competition asks before entering.
-        allow read: if isMember(orgId) || publicBrowse(orgId);
+        allow read: if isMember(orgId) || resource.data.status == 'published';
         allow create: if hasPerm(orgId, 'form.manage');
         allow update: if hasPerm(orgId, 'form.manage') && resource.data.status == 'draft';
         allow delete: if false;
@@ -291,7 +265,7 @@ service cloud.firestore {
       }
 
       match /badges/{badgeId} {
-        allow read: if isMember(orgId) || publicBrowse(orgId);
+        allow read: if isMember(orgId);
         allow write: if hasPerm(orgId, 'reward.manage');
       }
 
@@ -302,9 +276,7 @@ service cloud.firestore {
       }
 
       match /challenges/{cid} {
-        allow read: if isMember(orgId)
-                    || publicBrowse(orgId)
-                    || resource.data.visibility == 'public';
+        allow read: if isMember(orgId) || resource.data.visibility == 'public';
         allow create: if hasPerm(orgId, 'challenge.create');
 
         // Two update paths, deliberately unequal.
@@ -394,7 +366,7 @@ service cloud.firestore {
         }
 
         match /rubric/{criterionId} {
-          allow read: if isMember(orgId) || publicBrowse(orgId)
+          allow read: if isMember(orgId)
                       || get(/databases/$(database)/documents/organizations/$(orgId)/challenges/$(cid)).data.visibility == 'public';
           allow write: if hasPerm(orgId, 'challenge.update');
         }
@@ -412,7 +384,7 @@ service cloud.firestore {
         // reads every review in the challenge, which is 1,500 documents per
         // viewer at 500 entrants × 3 judges.
         match /leaderboard/{pageId} {
-          allow read: if isMember(orgId) || publicBrowse(orgId)
+          allow read: if isMember(orgId)
                       || get(/databases/$(database)/documents/organizations/$(orgId)/challenges/$(cid)).data.visibility == 'public';
           // Written once, by result publishing, by someone holding
           // `result.publish` (ADR-022). A Function owns this on Blaze; on Spark
@@ -439,7 +411,8 @@ service cloud.firestore {
         }
 
         match /announcements/{aid} {
-          allow read: if isMember(orgId) || publicBrowse(orgId);
+          allow read: if isMember(orgId)
+                      || get(/databases/$(database)/documents/organizations/$(orgId)/challenges/$(cid)).data.visibility == 'public';
           allow write: if hasPerm(orgId, 'challenge.update');
         }
       }

@@ -17,8 +17,8 @@ const EnvSchema = z.object({
   VITE_FIREBASE_MESSAGING_SENDER_ID: z.string().min(1),
   VITE_FIREBASE_APP_ID: z.string().min(1),
 
-  /** The organization the public demo reads from. See ADR-016. */
-  VITE_DEMO_ORG_ID: z.string().min(1).default('org_demo'),
+  /** Default tenant for this single-organization deployment. */
+  VITE_DEFAULT_ORG_ID: z.string().min(1, 'Default organization ID is required'),
 
   /**
    * The key that reveals the admin panel (`/admin`). See ADR-024.

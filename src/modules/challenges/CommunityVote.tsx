@@ -59,7 +59,7 @@ export default function CommunityVote() {
         </IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Eyebrow>Community vote</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
             {challenge.title}
           </Typography>
         </Box>

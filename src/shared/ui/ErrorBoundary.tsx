@@ -72,7 +72,7 @@ export class ErrorBoundary extends Component<Props, State> {
         }}
       >
         <Icon name={chunk ? 'sync_problem' : 'error'} size={40} color={c.errorInk} />
-        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mt: 2, mb: 1 }}>
+        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mt: 2, mb: 1 }}>
           {chunk ? 'Forge was updated' : 'Something went wrong on this screen'}
         </Typography>
         <Typography sx={{ fontSize: 15, color: c.inkMuted, lineHeight: 1.6, mb: 3 }}>

@@ -150,7 +150,7 @@ export default function FormBuilder() {
           <Typography sx={{ fontSize: 12, color: c.inkFaint }}>
             {challenge.title} · schema v{schema.version} · {schema.status} · {totalFields} fields
           </Typography>
-          <Typography sx={{ fontSize: 28, fontWeight: 700, letterSpacing: '-.025em', mt: 0.5 }}>
+          <Typography sx={{ fontSize: 28, fontWeight: 700, letterSpacing: 0, mt: 0.5 }}>
             {schema.title}
           </Typography>
         </Box>

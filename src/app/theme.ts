@@ -2,8 +2,8 @@ import { createTheme } from '@mui/material/styles';
 import { c, radius, shadow, ease } from '@shared/design/tokens';
 
 /**
- * MUI theme derived from the Forge design tokens (Material Design 3 expressive,
- * warm amber scheme). Every value here comes from `tokens.ts` — see the note at
+ * MUI theme derived from Forge's Pixel-inspired design tokens. Every value here
+ * comes from `tokens.ts` - see the note at
  * the top of that file before adding a colour.
  *
  * Org branding is applied at runtime via CSS custom properties, so a tenant
@@ -24,15 +24,15 @@ export const theme = createTheme({
   },
   shape: { borderRadius: radius.field },
   typography: {
-    fontFamily: 'Figtree, system-ui, sans-serif',
-    // The design's display sizes: tight tracking, heavy weight, balanced wrap.
-    h1: { fontWeight: 700, letterSpacing: '-0.035em', lineHeight: 1.06 },
-    h2: { fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.08 },
-    h3: { fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.1 },
-    h4: { fontWeight: 700, letterSpacing: '-0.025em' },
-    h5: { fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' },
-    h6: { fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' },
-    subtitle1: { fontWeight: 700, letterSpacing: '-0.01em' },
+    fontFamily: "'Manrope Variable', Manrope, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    allVariants: { fontOpticalSizing: 'auto' },
+    h1: { fontWeight: 650, letterSpacing: 0, lineHeight: 1.14 },
+    h2: { fontWeight: 650, letterSpacing: 0, lineHeight: 1.16 },
+    h3: { fontWeight: 650, letterSpacing: 0, lineHeight: 1.18 },
+    h4: { fontWeight: 650, letterSpacing: 0 },
+    h5: { fontSize: 22, fontWeight: 650, letterSpacing: 0 },
+    h6: { fontSize: 18, fontWeight: 650, letterSpacing: 0 },
+    subtitle1: { fontWeight: 650, letterSpacing: 0 },
     subtitle2: { fontWeight: 600 },
     body1: { fontSize: 15, lineHeight: 1.55 },
     body2: { fontSize: 13, lineHeight: 1.5 },
@@ -40,7 +40,7 @@ export const theme = createTheme({
     button: { textTransform: 'none', fontWeight: 600 },
     overline: {
       fontWeight: 700,
-      letterSpacing: '0.09em',
+      letterSpacing: 0,
       fontSize: 11,
       lineHeight: 1.4,
       color: c.inkFaint,
@@ -62,18 +62,26 @@ export const theme = createTheme({
       defaultProps: { disableElevation: true },
       styleOverrides: {
         // M3 buttons are pills, and taller than MUI's default.
-        root: { borderRadius: radius.pill, height: 48, paddingInline: 24, fontSize: 15 },
+        root: {
+          borderRadius: 24,
+          height: 48,
+          paddingInline: 24,
+          fontSize: 15,
+          transition: `transform 120ms ${ease}, background-color 180ms ${ease}, box-shadow 180ms ${ease}`,
+          '&:active': { transform: 'scale(.97)' },
+          '&.Mui-focusVisible': { outline: `3px solid rgba(73,71,62,.32)`, outlineOffset: 3 },
+        },
         sizeSmall: { height: 40, paddingInline: 18, fontSize: 13 },
         sizeLarge: { height: 56, paddingInline: 28, fontSize: 16 },
         contained: {
           boxShadow: shadow.raised,
-          transition: `background 180ms ${ease}, box-shadow 180ms ${ease}`,
-          '&:hover': { boxShadow: '0 3px 10px rgba(60,50,10,.18)' },
+          transition: `transform 120ms ${ease}, background 180ms ${ease}, box-shadow 180ms ${ease}`,
+          '&:hover': { boxShadow: '0 4px 14px rgba(73,71,62,.18)' },
         },
         outlined: {
           borderColor: c.outlineStrong,
           color: c.onPrimary,
-          '&:hover': { borderColor: c.outlineStrong, background: 'rgba(36,26,0,.05)' },
+          '&:hover': { borderColor: c.inkMuted, background: 'rgba(73,71,62,.06)' },
         },
         text: { color: c.primaryInk, '&:hover': { background: c.surfaceField } },
       },
@@ -82,8 +90,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           color: c.inkMuted,
-          transition: `background 180ms ${ease}`,
+          transition: `transform 120ms ${ease}, background 180ms ${ease}`,
           '&:hover': { background: c.surfaceField },
+          '&:active': { transform: 'scale(.92)' },
         },
       },
     },
@@ -181,7 +190,7 @@ export const theme = createTheme({
           borderRadius: `${radius.field}px ${radius.field}px 4px 4px`,
           background: c.surfaceField,
           transition: `background 180ms ${ease}`,
-          '&:hover': { background: '#EFE6D0' },
+          '&:hover': { background: c.surfaceFieldHover },
           '&.Mui-focused': { background: c.surfaceFieldHover },
           '&:before': { borderBottom: `2px solid ${c.outlineField}` },
           '&:hover:not(.Mui-disabled, .Mui-error):before': { borderBottom: `2px solid ${c.outlineField}` },

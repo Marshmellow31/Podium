@@ -39,13 +39,24 @@ export async function fetchChallenges(orgId: string) {
   return snap.docs.map((d) => toChallenge(d.data()));
 }
 
+export async function fetchPublicChallenges(orgId: string) {
+  const snap = await getDocs(query(challengesCol(orgId), where('visibility', '==', 'public')));
+  return snap.docs
+    .map((d) => toChallenge(d.data()))
+    .sort((a, b) => a.timeline.registrationClosesAt.localeCompare(b.timeline.registrationClosesAt));
+}
+
 export async function fetchChallenge(orgId: string, cid: string) {
   const snap = await getDoc(challengeDoc(orgId, cid));
   return snap.exists() ? toChallenge(snap.data()) : null;
 }
 
 export async function fetchChallengeBySlug(orgId: string, slug: string) {
-  const snap = await getDocs(query(challengesCol(orgId), where('slug', '==', slug)));
+  const snap = await getDocs(query(
+    challengesCol(orgId),
+    where('slug', '==', slug),
+    where('visibility', '==', 'public'),
+  ));
   const first = snap.docs[0];
   return first ? toChallenge(first.data()) : null;
 }
@@ -110,6 +121,11 @@ export async function fetchLeaderboard(orgId: string, cid: string) {
 
 export async function fetchFormSchemas(orgId: string): Promise<Record<string, FormSchema>> {
   const snap = await getDocs(formSchemasCol(orgId));
+  return Object.fromEntries(snap.docs.map((d) => [d.id, toFormSchema(d.data())]));
+}
+
+export async function fetchPublishedFormSchemas(orgId: string): Promise<Record<string, FormSchema>> {
+  const snap = await getDocs(query(formSchemasCol(orgId), where('status', '==', 'published')));
   return Object.fromEntries(snap.docs.map((d) => [d.id, toFormSchema(d.data())]));
 }
 

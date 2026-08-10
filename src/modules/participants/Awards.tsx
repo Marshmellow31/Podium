@@ -30,7 +30,7 @@ export default function Awards() {
       <Hero bg={c.success} blobs={false}>
         <Box sx={{ position: 'absolute', width: 300, height: 280, right: -90, bottom: -120, background: c.primaryContainer, opacity: 0.9, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%', animation: 'floaty 16s ease-in-out infinite' }} />
         <Box sx={{ position: 'relative' }}>
-          <Typography variant="h1" sx={{ fontSize: 'clamp(32px, 4.6vw, 52px)', color: c.onSuccess, mb: 1.25 }}>
+          <Typography variant="h1" sx={{ fontSize: { xs: 32, md: 52 }, color: c.onSuccess, mb: 1.25 }}>
             {earned.length} badges.
             <br />
             {certificates.length} certificates.
@@ -93,7 +93,7 @@ export default function Awards() {
           >
             <Icon name="workspace_premium" size={30} fill color={c.primaryIcon} />
             <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', mb: 0.4 }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 0.4 }}>
                 {cert.challenge}
               </Typography>
               <Typography sx={{ fontSize: 13, color: c.inkMuted }}>

@@ -71,8 +71,8 @@ export default function Welcome() {
 
         <Box sx={{ display: 'grid', gap: { xs: 3, lg: 4 }, gridTemplateColumns: { xs: '1fr', lg: 'minmax(0,.9fr) minmax(420px,1.1fr)' }, alignItems: 'stretch' }}>
           <Box sx={{ p: { xs: 3, sm: 4, md: 5 }, borderRadius: `${radius.hero}px`, background: c.primaryContainer }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: c.primaryInk, mb: 2 }}>One quick choice</Typography>
-            <Typography component="h1" sx={{ maxWidth: 520, fontSize: 'clamp(34px,4.8vw,52px)', fontWeight: 760, lineHeight: 1.04, letterSpacing: '-.05em', mb: 2 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0, textTransform: 'uppercase', color: c.primaryInk, mb: 2 }}>One quick choice</Typography>
+            <Typography component="h1" sx={{ maxWidth: 520, fontSize: { xs: 34, md: 52 }, fontWeight: 650, lineHeight: 1.14, letterSpacing: 0, mb: 2 }}>
               How will you use Forge today?
             </Typography>
             <Typography sx={{ maxWidth: 520, fontSize: 15.5, lineHeight: 1.65, color: c.inkMuted, mb: 4 }}>
@@ -83,7 +83,7 @@ export default function Welcome() {
               {START_PATHS.map((path) => {
                 const active = selected === path.mode;
                 return (
-                  <Box key={path.mode} component="button" type="button" onClick={() => setSelected(path.mode)} aria-pressed={active} sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 1.75, p: 2.25, borderRadius: `${radius.tile}px`, border: `1px solid ${active ? c.outlineStrong : 'transparent'}`, background: active ? c.surfaceCard : 'rgba(255,253,246,.5)', color: c.ink, textAlign: 'left', font: 'inherit', cursor: 'pointer', boxShadow: active ? shadow.raised : 'none', transition: `all 180ms ${ease}` }}>
+                  <Box key={path.mode} component="button" type="button" onClick={() => setSelected(path.mode)} aria-pressed={active} sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 1.75, p: 2.25, borderRadius: `${radius.tile}px`, border: `1px solid ${active ? c.inkMuted : 'transparent'}`, background: active ? c.surfaceCard : 'rgba(250,250,250,.62)', color: c.ink, textAlign: 'left', font: 'inherit', cursor: 'pointer', boxShadow: active ? shadow.raised : 'none', transition: `background 180ms ${ease}, border-color 180ms ${ease}, transform 120ms ${ease}` }}>
                     <Box sx={{ width: 44, height: 44, flex: 'none', display: 'grid', placeItems: 'center', borderRadius: '14px', background: active ? c.primary : c.surfaceContainer }}><Icon name={path.icon} size={23} color={c.primaryIcon} /></Box>
                     <Box sx={{ flex: 1 }}><Typography sx={{ fontSize: 16, fontWeight: 750, mb: 0.5 }}>{path.title}</Typography><Typography sx={{ fontSize: 13, lineHeight: 1.55, color: c.inkMuted }}>{path.body}</Typography></Box>
                     <Icon name={active ? 'check_circle' : 'radio_button_unchecked'} size={22} fill={active} color={active ? c.successInk : c.inkFaint} />
@@ -147,7 +147,7 @@ function Brand() {
   return (
     <Stack component={Link} to="/" direction="row" alignItems="center" gap={1.25} sx={{ color: 'inherit', textDecoration: 'none' }}>
       <Box sx={{ width: 40, height: 40, display: 'grid', placeItems: 'center', borderRadius: '13px', background: c.inverse, color: c.primary, fontSize: 21, fontWeight: 800 }}>F</Box>
-      <Typography sx={{ fontSize: 23, fontWeight: 750, letterSpacing: '-.03em' }}>Forge</Typography>
+      <Typography sx={{ fontSize: 23, fontWeight: 750, letterSpacing: 0 }}>Forge</Typography>
     </Stack>
   );
 }

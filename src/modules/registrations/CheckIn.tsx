@@ -75,7 +75,7 @@ export default function CheckIn() {
         </IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Eyebrow>Check-in</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
             {challenge?.title ?? '…'}
           </Typography>
         </Box>

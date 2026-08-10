@@ -10,8 +10,6 @@ import { c, radius, ease } from '@shared/design/tokens';
 import { useChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 
-/** The profile seeded into the index snapshot for the signed-out demo. */
-const DEMO_USER_ID = 'u_self';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 
 const BADGE_ICONS: Record<string, string> = {
@@ -31,9 +29,7 @@ export default function ParticipantDashboard() {
   const { data: challenges = [], isLoading, error } = useChallenges();
   const { data: badges = [] } = useBadges();
   const { data: certificates = [] } = useCertificates();
-  // No sign-in on the public demo, so fall back to the seeded demo profile
-  // that travels in the index snapshot. See ADR-016.
-  const { data: profile } = useCurrentUser(user?.uid ?? DEMO_USER_ID);
+  const { data: profile } = useCurrentUser(user?.uid);
   const displayName = user?.displayName ?? profile?.name ?? 'there';
   const stats = profile ?? { points: 0, streakDays: 0, challengesEntered: 0, challengesWon: 0 };
   const active = challenges.filter((ch) => ch.status === 'running' || ch.status === 'judging');
@@ -48,7 +44,7 @@ export default function ParticipantDashboard() {
         </Typography>
         <Typography
           variant="h1"
-          sx={{ fontSize: 'clamp(32px, 4.6vw, 52px)', color: c.onPrimaryContainer, mb: 1.5, textWrap: 'balance' }}
+          sx={{ fontSize: { xs: 32, md: 52 }, color: c.onPrimaryContainer, mb: 1.5, textWrap: 'balance' }}
         >
           {active.length} deadline{active.length === 1 ? '' : 's'}
           <br />
@@ -121,7 +117,7 @@ export default function ParticipantDashboard() {
               >
                 <Box sx={{ flex: 1, minWidth: 240 }}>
                   <Stack direction="row" alignItems="center" gap={1.25} flexWrap="wrap" sx={{ mb: 1 }}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>{ch.title}</Typography>
+                    <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>{ch.title}</Typography>
                     <StatusPill status={ch.status} />
                   </Stack>
                   <Typography sx={{ fontSize: 13, color: c.inkMuted, mb: 2.25 }}>
