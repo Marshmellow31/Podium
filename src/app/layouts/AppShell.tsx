@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Box, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Box, IconButton, Popover, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { AnimatePresence, motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
@@ -108,6 +109,7 @@ export default function AppShell() {
   const location = useLocation();
   const { pathname } = location;
   const navigate = useNavigate();
+  const [installHelpAnchor, setInstallHelpAnchor] = useState<HTMLButtonElement | null>(null);
 
   const inOrgContext = pathname.startsWith('/org');
   const primaryLabel = inOrgContext ? 'New challenge' : 'Enter a challenge';
@@ -128,6 +130,7 @@ export default function AppShell() {
   };
 
   const showFab = !isDesktop && ['/home', '/discover', '/me/registrations'].includes(pathname);
+  const installHelpOpen = Boolean(installHelpAnchor);
 
   /**
    * A participant is not shown the organizing group.
@@ -285,22 +288,13 @@ export default function AppShell() {
               </Stack>
             )}
             {isDesktop && (
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography noWrap sx={{ fontSize: 22, fontWeight: 720, letterSpacing: 0, lineHeight: 1.15 }}>
-                  {screenTitle}
-                </Typography>
-                <Typography noWrap sx={{ mt: 0.35, fontSize: 12.5, color: c.inkMuted }}>
-                  {mode === 'organizer' ? 'Manage challenges, members and results' : 'Track entries, awards and open challenges'}
-                </Typography>
-              </Box>
-            )}
-            {isDesktop && (
               <Stack
                 direction="row"
                 alignItems="center"
                 spacing={1.5}
                 sx={{
-                  width: 'min(42vw, 520px)',
+                  width: 'min(52vw, 640px)',
+                  mr: 'auto',
                   height: 48,
                   px: 2,
                   borderRadius: `${radius.field}px`,
@@ -324,6 +318,16 @@ export default function AppShell() {
             )}
             {!isDesktop && <Box sx={{ flex: 'none' }} />}
             <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Tooltip title="Install help">
+                <IconButton
+                  aria-label="Show install instructions"
+                  aria-haspopup="dialog"
+                  aria-expanded={installHelpOpen}
+                  onClick={(event) => setInstallHelpAnchor(event.currentTarget)}
+                >
+                  <Icon name="help_outline" size={22} />
+                </IconButton>
+              </Tooltip>
               <NotificationBell />
               <Tooltip title={`Signed in as ${displayName} — sign out`}>
                 <Box
@@ -343,6 +347,45 @@ export default function AppShell() {
               </Tooltip>
             </Stack>
           </Stack>
+          <Popover
+            open={installHelpOpen}
+            anchorEl={installHelpAnchor}
+            onClose={() => setInstallHelpAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: {
+                sx: {
+                  width: { xs: 'calc(100vw - 32px)', sm: 360 },
+                  maxWidth: 360,
+                  mt: 1,
+                  borderRadius: `${radius.tile}px`,
+                  border: `1px solid ${c.outline}`,
+                  background: c.surfaceCard,
+                  boxShadow: shadow.dialog,
+                  p: 2.25,
+                },
+              },
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Stack direction="row" alignItems="center" gap={1.25}>
+                <Icon name="install_desktop" size={22} color={c.primaryIcon} />
+                <Typography sx={{ fontSize: 15, fontWeight: 750 }}>
+                  Install Podium
+                </Typography>
+              </Stack>
+              <Typography sx={{ fontSize: 13, lineHeight: 1.55, color: c.inkMuted }}>
+                PWA install support is planned. For now, use your browser shortcut option.
+              </Typography>
+              <Box component="ol" sx={{ m: 0, pl: 2.25, color: c.inkBody, fontSize: 13, lineHeight: 1.65 }}>
+                <li>Open Podium in Chrome or Edge.</li>
+                <li>Choose the browser menu.</li>
+                <li>Select <Box component="strong">Save and share</Box>, then <Box component="strong">Create shortcut</Box>.</li>
+                <li>Enable <Box component="strong">Open as window</Box>, then create it.</li>
+              </Box>
+            </Stack>
+          </Popover>
         </Box>
 
         <Box sx={{ flex: 1, px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 } }}>
