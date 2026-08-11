@@ -13,12 +13,29 @@ import './index.css';
 const el = document.getElementById('root');
 if (!el) throw new Error('#root not found');
 
+function removeLegacyPwaRuntime() {
+  if ('serviceWorker' in navigator) {
+    void navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+      .catch(() => {});
+  }
+
+  if ('caches' in window) {
+    void caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => /workbox|podium|vite-pwa/i.test(key)).map((key) => caches.delete(key))))
+      .catch(() => {});
+  }
+}
+
 /**
  * A misconfigured deploy must say so. `@config/env` throws at import time on a
  * missing key, so catch it here and render the reason instead of a blank page.
  */
 function boot() {
   validateEnv();
+  removeLegacyPwaRuntime();
   createRoot(el!).render(
     <StrictMode>
       <ThemeProvider theme={theme}>

@@ -277,7 +277,7 @@ export default function AppShell() {
             direction="row"
             alignItems="center"
             spacing={2}
-            sx={{ maxWidth: 1240, mx: 'auto', px: { xs: 2.5, md: 5 }, height: 72 }}
+            sx={{ width: '100%', px: { xs: 2.5, md: 4 }, height: 72 }}
           >
             {!isDesktop && (
               <Stack direction="row" alignItems="center" spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
@@ -293,8 +293,9 @@ export default function AppShell() {
                 alignItems="center"
                 spacing={1.5}
                 sx={{
-                  width: 'min(52vw, 640px)',
-                  mr: 'auto',
+                  flex: '1 1 560px',
+                  maxWidth: 640,
+                  minWidth: 280,
                   height: 48,
                   px: 2,
                   borderRadius: `${radius.field}px`,
@@ -317,7 +318,7 @@ export default function AppShell() {
               </Stack>
             )}
             {!isDesktop && <Box sx={{ flex: 'none' }} />}
-            <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 'none', ml: 'auto' }}>
               <Tooltip title="Install help">
                 <IconButton
                   aria-label="Show install instructions"

@@ -1,111 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-
-    /**
-     * Installable PWA — ROADMAP 1.17.
-     *
-     * The caching strategy is where the thought went. Two rules drive it:
-     *
-     * 1. **Never cache Firestore or Auth.** Their traffic is authenticated and
-     *    frequently mutated; a stale cached response would show one person
-     *    another person's data or resurrect a deleted challenge. The Firestore
-     *    SDK already has its own IndexedDB persistence (`core/firebase/app.ts`)
-     *    which understands documents, permissions and invalidation — a service
-     *    worker caching the same requests by URL would fight it and lose.
-     * 2. **Cache what is immutable and expensive.** Hashed build assets, fonts,
-     *    and Drive-hosted cover images are all safe to serve from cache.
-     */
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon-32.png', 'icons/apple-touch-icon.png'],
-      manifest: {
-        name: 'Podium — run any challenge',
-        short_name: 'Podium',
-        description:
-          'Create, run, judge and reward challenges of any kind. Registration, submissions, judging and results in one place.',
-        theme_color: '#FDF8EC',
-        background_color: '#FDF8EC',
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '/home',
-        scope: '/',
-        categories: ['productivity', 'education', 'business'],
-        icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          // `maskable` is a separate entry with a wider safe area — a launcher
-          // crops it to its own shape, and the plain icon would lose its arms.
-          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-        ],
-        shortcuts: [
-          { name: 'Discover challenges', short_name: 'Discover', url: '/discover' },
-          { name: 'My entries', short_name: 'Entries', url: '/me/registrations' },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2}'],
-        // Client-side routing: any navigation resolves to the app shell.
-        navigateFallback: '/index.html',
-        // …except these, which are not app routes and must hit the network.
-        navigateFallbackDenylist: [/^\/__/, /\/[^/?]+\.[^/]+$/],
-        cleanupOutdatedCaches: true,
-        runtimeCaching: [
-          {
-            // See rule 1 above. This entry exists to be explicit rather than to
-            // rely on the absence of a matching rule.
-            urlPattern: /^https:\/\/(firestore|identitytoolkit|securetoken)\.googleapis\.com\/.*/i,
-            handler: 'NetworkOnly',
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              /**
-               * 200 only — **not** 0. Status 0 is an opaque response, which for
-               * a CORS-enabled origin like Google Fonts means the fetch did not
-               * succeed. Allowing it here combined with `CacheFirst` and a
-               * one-year expiry meant a single failed request — one flaky
-               * moment on a train — was cached as the answer and every icon in
-               * the product rendered as its ligature text (`search`, `home`,
-               * `check`) for that visitor, permanently, until they cleared site
-               * data. Observed while verifying the production headers.
-               *
-               * Both hosts send proper CORS headers, so a real success is
-               * always 200 and nothing legitimate is lost. Contrast the Drive
-               * thumbnails below, where opaque *is* the expected shape.
-               */
-              cacheableResponse: { statuses: [200] },
-            },
-          },
-          {
-            // Drive-hosted covers. Opaque cross-origin responses are status 0,
-            // hence the explicit allowance.
-            urlPattern: /^https:\/\/drive\.google\.com\/thumbnail.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'drive-images',
-              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
-      },
-      devOptions: {
-        // Off in dev: an auto-updating service worker and HMR interfere, and a
-        // stale precache during development is a confusing bug to chase.
-        enabled: false,
-      },
-    }),
   ],
   resolve: {
     alias: {

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@core/auth';
-import { PwaPrompts } from '@shared/ui/PwaPrompts';
 
 /**
  * Composition root. Everything here is wiring; the behaviour lives in `core/`.
@@ -40,7 +39,6 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         {children}
-        <PwaPrompts />
       </AuthProvider>
     </QueryClientProvider>
   );
