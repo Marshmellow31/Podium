@@ -346,17 +346,17 @@ export default function AppShell() {
         </Box>
 
         <Box sx={{ flex: 1, px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 } }}>
-          <Box sx={{ maxWidth: 1240, mx: 'auto' }}>
-            <AnimatePresence mode="wait" initial={false}>
+          <Box sx={{ maxWidth: 1240, mx: 'auto', position: 'relative', display: 'grid' }}>
+            <AnimatePresence initial={false}>
               <Box
-                key={location.key || pathname}
+                key={pathname}
                 component={motion.div}
                 variants={pageMotion}
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={spring}
-                sx={{ willChange: 'transform, opacity, filter' }}
+                transition={{ ...spring, duration: 0.2 }}
+                sx={{ gridArea: '1 / 1', willChange: 'transform, opacity' }}
               >
                 <Outlet />
               </Box>

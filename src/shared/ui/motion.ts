@@ -5,9 +5,9 @@ export const quickSpring = { type: 'spring', bounce: 0, duration: 0.24 } as cons
 export const softSpring = { type: 'spring', bounce: 0.08, duration: 0.46 } as const;
 
 export const pageMotion: Variants = {
-  initial: { opacity: 0, y: 16, filter: 'blur(6px)' },
+  initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-  exit: { opacity: 0, y: -8, filter: 'blur(4px)' },
+  exit: { opacity: 0, y: -4 },
 };
 
 export const surfaceMotion: Variants = {
