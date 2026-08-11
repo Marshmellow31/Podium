@@ -3,6 +3,23 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "script-src 'self' https://apis.google.com https://www.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://*.googleapis.com https://fonts.gstatic.com https://*.firebaseio.com wss://*.firebaseio.com https://oauth2.googleapis.com",
+  "frame-src https://*.firebaseapp.com https://accounts.google.com",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  'upgrade-insecure-requests',
+].join('; ');
+
 export default defineConfig({
   plugins: [
     react(),
@@ -45,5 +62,11 @@ export default defineConfig({
   },
   // Honour PORT when the environment assigns one, so several instances can run
   // side by side; 5173 stays the default for a plain `npm run dev`.
-  server: { port: process.env.PORT ? Number(process.env.PORT) : 5173 },
+  server: {
+    port: process.env.PORT ? Number(process.env.PORT) : 5173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Content-Security-Policy': contentSecurityPolicy,
+    },
+  },
 });
