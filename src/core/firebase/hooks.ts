@@ -85,6 +85,13 @@ export const useBadges = (earnedIds: string[] = [], orgId = defaultOrgId()) =>
 export const useCertificates = () =>
   useQuery({ queryKey: qk.certificates(), queryFn: () => q.fetchCertificates() });
 
+export const useMyCertificates = (userId: string | undefined) =>
+  useQuery({
+    queryKey: qk.certificates(userId ?? ''),
+    queryFn: () => q.fetchMyCertificates(userId!),
+    enabled: Boolean(userId),
+  });
+
 export const useCurrentUser = (userId: string | undefined) =>
   useQuery({
     queryKey: qk.user(userId ?? ''),

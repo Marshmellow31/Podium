@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
 import { PageTitle, StatusPill, EmptyState, Num, liftSx } from '@shared/ui/primitives';
 import { c, radius, coverFor } from '@shared/design/tokens';
-import { useChallenges, useSubmissions } from '@core/firebase/hooks';
+import { useMyRegistrations, usePublicChallenges } from '@core/firebase/hooks';
+import { useAuth } from '@core/auth';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 
 /** S-55 — My entries. */
@@ -30,20 +31,18 @@ const CATEGORY_ICON: Record<string, string> = {
 export default function MyEntries() {
   const [tab, setTab] = useState<TabKey>('active');
   const navigate = useNavigate();
-  const { data: challenges = [], isLoading, error } = useChallenges();
-  // The demo user's entries live on the one challenge that has submissions.
-  const withSubs = challenges.find((ch) => ch.counters.submissions > 0);
-  const { data: submissions = [] } = useSubmissions(withSubs?.id);
+  const { user } = useAuth();
+  const { data: registrations = [], isLoading, error } = useMyRegistrations(user?.uid);
+  const { data: publicChallenges = [] } = usePublicChallenges();
+  const challengeById = useMemo(
+    () => new Map(publicChallenges.map((ch) => [ch.id, ch])),
+    [publicChallenges],
+  );
 
-  // Demo shape: the current user's entries are the first submission per challenge.
-  const mine = challenges
-    .map((ch) => ({ ch, sub: submissions.find((s) => s.challengeId === ch.id) }))
-    .filter((row): row is { ch: (typeof challenges)[number]; sub: (typeof submissions)[number] } => Boolean(row.sub));
-
-  const rows = mine.filter(({ ch, sub }) => {
-    if (tab === 'active') return ch.status === 'running' || ch.status === 'judging';
-    if (tab === 'judged') return sub.status === 'reviewed' || ch.status === 'completed';
-    return ch.status === 'completed' || ch.status === 'draft';
+  const rows = registrations.filter((entry) => {
+    if (tab === 'active') return entry.status === 'pending' || entry.status === 'active';
+    if (tab === 'judged') return entry.status === 'winner' || entry.status === 'eliminated';
+    return false;
   });
 
   return (
@@ -61,15 +60,19 @@ export default function MyEntries() {
         <EmptyState
           icon="inbox"
           title="Nothing here yet"
-          body="Entries you archive, or that finish without a placement, collect here."
+          body={tab === 'active'
+            ? 'Entries appear here after you register for a challenge.'
+            : 'Finished entries and placements collect here.'}
           action={<Button variant="contained" component={Link} to="/discover">Find a challenge</Button>}
         />
       ) : (
         <Stack spacing={1.5}>
-          {rows.map(({ ch, sub }) => (
+          {rows.map((entry) => {
+            const challenge = challengeById.get(entry.challengeId);
+            return (
             <Box
-              key={sub.id}
-              onClick={() => navigate(`/c/${ch.slug}`)}
+              key={entry.id}
+              onClick={() => challenge && navigate(`/c/${challenge.slug}`)}
               sx={{
                 ...liftSx,
                 display: 'flex',
@@ -81,6 +84,7 @@ export default function MyEntries() {
                 border: `1px solid ${c.outline}`,
                 p: 2.5,
                 '&:hover': { boxShadow: '0 4px 14px rgba(60,50,10,.09)', transform: 'translateY(-2px)' },
+                cursor: challenge ? 'pointer' : 'default',
               }}
             >
               <Box
@@ -91,35 +95,36 @@ export default function MyEntries() {
                   borderRadius: `${radius.field}px`,
                   display: 'grid',
                   placeItems: 'center',
-                  background: coverFor(ch.category),
+                  background: coverFor(challenge?.category ?? 'Community'),
                 }}
               >
-                <Icon name={CATEGORY_ICON[ch.category] ?? 'emoji_events'} size={24} color={c.onPrimaryContainer} />
+                <Icon name={CATEGORY_ICON[challenge?.category ?? ''] ?? 'emoji_events'} size={24} color={c.onPrimaryContainer} />
               </Box>
 
               <Box sx={{ flex: 1, minWidth: 180 }}>
                 <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 0.5 }}>
-                  {ch.title}
+                  {challenge?.title ?? `Challenge ${entry.challengeId}`}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: c.inkMuted }}>
-                  Submitted {sub.submittedAt} · {sub.reviewsDone} of {sub.reviewsTotal} reviews in
+                  Registered {entry.registeredAt} · stage {entry.currentStageKey}
                 </Typography>
               </Box>
 
-              <StatusPill status={sub.status} label={sub.status === 'underReview' ? 'under review' : sub.status} />
+              <StatusPill status={entry.status} />
 
               <Box sx={{ textAlign: 'right', minWidth: 88 }}>
-                <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
-                  {sub.score === null ? <Box component="span" sx={{ color: c.inkFaint, fontSize: 15 }}>—</Box> : <Num size={20}>{sub.score.toFixed(1)}</Num>}
+                <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
+                  <Num size={18}>{entry.checkedIn ? 'In' : '—'}</Num>
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: c.inkFaint }}>
-                  {sub.score === null ? 'not scored' : sub.isProvisional ? 'provisional' : 'final'}
+                  {entry.checkedIn ? 'checked in' : 'not checked in'}
                 </Typography>
               </Box>
 
               <Icon name="chevron_right" size={22} color={c.inkFaint} />
             </Box>
-          ))}
+            );
+          })}
         </Stack>
       )}
       </QueryBoundary>

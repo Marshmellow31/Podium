@@ -140,14 +140,25 @@ export async function fetchAuditLog(orgId: string) {
 }
 
 export async function fetchBadges(orgId: string, earnedIds: string[] = []) {
-  const snap = await getDocs(badgesCol(orgId));
-  const earned = new Set(earnedIds);
-  return snap.docs.map((d) => toBadge(d.data(), earned));
+  try {
+    const snap = await getDocs(badgesCol(orgId));
+    const earned = new Set(earnedIds);
+    return snap.docs.map((d) => toBadge(d.data(), earned));
+  } catch {
+    // Badges are org-managed catalog data. A participant who is not an org
+    // member should still see their Awards page; the catalog is just empty.
+    return [];
+  }
 }
 
 /** Global collection — public verification URLs must work without org context. */
 export async function fetchCertificates() {
   const snap = await getDocs(certificatesCol());
+  return snap.docs.map((d) => toCertificate(d.data()));
+}
+
+export async function fetchMyCertificates(userId: string) {
+  const snap = await getDocs(query(certificatesCol(), where('userId', '==', userId), limit(100)));
   return snap.docs.map((d) => toCertificate(d.data()));
 }
 

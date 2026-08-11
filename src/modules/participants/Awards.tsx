@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
-import { Hero, Tag, Num, liftSx } from '@shared/ui/primitives';
+import { EmptyState, Hero, Tag, Num, liftSx } from '@shared/ui/primitives';
 import { c, radius } from '@shared/design/tokens';
-import { useBadges, useCertificates } from '@core/firebase/hooks';
+import { useBadges, useMyCertificates } from '@core/firebase/hooks';
+import { useAuth } from '@core/auth';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 
 /** S-62 — Achievements. */
@@ -22,9 +23,11 @@ const BADGE_ICONS: Record<string, string> = {
 };
 
 export default function Awards() {
-  const { data: badges = [], isLoading, error } = useBadges();
-  const { data: certificates = [] } = useCertificates();
+  const { user } = useAuth();
+  const { data: badges = [], isLoading: badgesLoading } = useBadges();
+  const { data: certificates = [], isLoading: certificatesLoading, error } = useMyCertificates(user?.uid);
   const earned = badges.filter((b) => b.earned);
+  const isLoading = badgesLoading || certificatesLoading;
 
   return (
     <>
@@ -48,72 +51,91 @@ export default function Awards() {
       </Hero>
 
       <QueryBoundary isLoading={isLoading} error={error}>
+      {badges.length === 0 && certificates.length === 0 ? (
+        <EmptyState
+          icon="workspace_premium"
+          title="No awards yet"
+          body="Badges and certificates appear here after you enter challenges and results are published."
+          action={<Button variant="contained" component={Link} to="/discover">Find a challenge</Button>}
+        />
+      ) : (
+      <>
       <Typography variant="h6" sx={{ mb: 2 }}>Badges</Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 1.5, mb: 4.5 }}>
-        {badges.map((b) => (
-          <Box
-            key={b.id}
-            sx={{
-              borderRadius: `${radius.tile}px`,
-              p: '20px 16px',
-              textAlign: 'center',
-              background: b.earned ? c.surfaceCard : c.surfaceContainer,
-              border: `1px solid ${b.earned ? c.outline : 'transparent'}`,
-              opacity: b.earned ? 1 : 0.55,
-              transition: 'transform 200ms',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Icon
-              name={b.earned ? (BADGE_ICONS[b.id] ?? 'workspace_premium') : 'lock'}
-              size={30}
-              fill={b.earned}
-              color={b.earned ? c.primaryIcon : c.inkFaint}
-            />
-            <Typography sx={{ fontSize: 13, fontWeight: 600, mt: 1.25, lineHeight: 1.35 }}>{b.name}</Typography>
-            <Typography sx={{ fontSize: 11, color: c.inkFaint, mt: 0.5 }}>
-              {b.earned ? 'Earned' : 'Locked'}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      <Typography variant="h6" sx={{ mb: 2 }}>Certificates</Typography>
-      <Stack spacing={1.5}>
-        {certificates.map((cert) => (
-          <Stack
-            key={cert.id}
-            direction="row"
-            alignItems="center"
-            flexWrap="wrap"
-            gap={2.25}
-            sx={{
-              ...liftSx,
-              cursor: 'default',
-              borderRadius: `${radius.card}px`,
-              background: c.surfaceCard,
-              border: `1px solid ${c.outline}`,
-              p: 2.5,
-              '&:hover': { transform: 'none', boxShadow: 'none' },
-            }}
-          >
-            <Icon name="workspace_premium" size={30} fill color={c.primaryIcon} />
-            <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 0.4 }}>
-                {cert.challenge}
-              </Typography>
-              <Typography sx={{ fontSize: 13, color: c.inkMuted }}>
-                {cert.org} · {cert.issuedAt}
+      {badges.length === 0 ? (
+        <EmptyState icon="military_tech" title="No badges yet" body="Badge rules are not published for this account yet." />
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 1.5, mb: 4.5 }}>
+          {badges.map((b) => (
+            <Box
+              key={b.id}
+              sx={{
+                borderRadius: `${radius.tile}px`,
+                p: '20px 16px',
+                textAlign: 'center',
+                background: b.earned ? c.surfaceCard : c.surfaceContainer,
+                border: `1px solid ${b.earned ? c.outline : 'transparent'}`,
+                opacity: b.earned ? 1 : 0.55,
+                transition: 'transform 200ms',
+                '&:hover': { transform: 'translateY(-2px)' },
+              }}
+            >
+              <Icon
+                name={b.earned ? (BADGE_ICONS[b.id] ?? 'workspace_premium') : 'lock'}
+                size={30}
+                fill={b.earned}
+                color={b.earned ? c.primaryIcon : c.inkFaint}
+              />
+              <Typography sx={{ fontSize: 13, fontWeight: 600, mt: 1.25, lineHeight: 1.35 }}>{b.name}</Typography>
+              <Typography sx={{ fontSize: 11, color: c.inkFaint, mt: 0.5 }}>
+                {b.earned ? 'Earned' : 'Locked'}
               </Typography>
             </Box>
-            <Tag>{cert.award}</Tag>
-            <Box sx={{ color: c.inkFaint }}><Num size={12}>{cert.id}</Num></Box>
-            <Button size="small" variant="outlined" component={Link} to={`/verify/${cert.id}`}>
-              Verify
-            </Button>
-          </Stack>
-        ))}
-      </Stack>
+          ))}
+        </Box>
+      )}
+
+      <Typography variant="h6" sx={{ mb: 2 }}>Certificates</Typography>
+      {certificates.length === 0 ? (
+        <EmptyState icon="workspace_premium" title="No certificates yet" body="Certificates appear after organizers publish results." />
+      ) : (
+        <Stack spacing={1.5}>
+          {certificates.map((cert) => (
+            <Stack
+              key={cert.id}
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              gap={2.25}
+              sx={{
+                ...liftSx,
+                cursor: 'default',
+                borderRadius: `${radius.card}px`,
+                background: c.surfaceCard,
+                border: `1px solid ${c.outline}`,
+                p: 2.5,
+                '&:hover': { transform: 'none', boxShadow: 'none' },
+              }}
+            >
+              <Icon name="workspace_premium" size={30} fill color={c.primaryIcon} />
+              <Box sx={{ flex: 1, minWidth: 180 }}>
+                <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 0.4 }}>
+                  {cert.challenge}
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: c.inkMuted }}>
+                  {cert.org} · {cert.issuedAt}
+                </Typography>
+              </Box>
+              <Tag>{cert.award}</Tag>
+              <Box sx={{ color: c.inkFaint }}><Num size={12}>{cert.id}</Num></Box>
+              <Button size="small" variant="outlined" component={Link} to={`/verify/${cert.id}`}>
+                Verify
+              </Button>
+            </Stack>
+          ))}
+        </Stack>
+      )}
+      </>
+      )}
       </QueryBoundary>
     </>
   );
