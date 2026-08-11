@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
+  closestCenter, DndContext, KeyboardSensor, PointerSensor, TouchSensor,
+  useSensor, useSensors, type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
   Box, Button, Checkbox, FormControlLabel, IconButton, MenuItem, Stack, Tab, Tabs, TextField,
   Tooltip, Typography,
 } from '@mui/material';
@@ -60,6 +68,104 @@ function blankField(type: FieldType, order: number): FormField {
   };
 }
 
+type SortableFieldCardProps = {
+  field: FormField;
+  index: number;
+  sectionId: string;
+  sectionLength: number;
+  selected: boolean;
+  onSelect: () => void;
+  onMove: (dir: -1 | 1) => void;
+  onRemove: () => void;
+};
+
+function SortableFieldCard({
+  field, index, sectionId, sectionLength, selected, onSelect, onMove, onRemove,
+}: SortableFieldCardProps) {
+  const def = getFieldType(field.type);
+  const {
+    attributes, listeners, setNodeRef, transform, transition, isDragging,
+  } = useSortable({ id: field.id, data: { sectionId } });
+
+  return (
+    <Box
+      ref={setNodeRef}
+      component="article"
+      onClick={onSelect}
+      sx={{
+        cursor: 'pointer',
+        display: 'grid',
+        gridTemplateColumns: { xs: '32px minmax(0,1fr)', sm: '32px minmax(0,1fr) auto' },
+        gap: { xs: 1, sm: 1.75 },
+        alignItems: 'center',
+        p: { xs: 1.25, sm: 2 },
+        borderRadius: `${radius.row}px`,
+        background: selected ? c.primaryContainer : c.surfaceContainer,
+        border: `1px solid ${selected ? c.accent : 'transparent'}`,
+        opacity: isDragging ? 0.62 : 1,
+        transform: CSS.Transform.toString(transform),
+        transition: transition ?? `background 160ms ${ease}, border-color 160ms ${ease}, opacity 160ms ${ease}`,
+        boxShadow: isDragging ? '0 14px 32px rgba(33, 24, 0, 0.14)' : 'none',
+        zIndex: isDragging ? 2 : 1,
+      }}
+    >
+      <Tooltip title="Drag to reorder">
+        <Box
+          component="button"
+          type="button"
+          aria-label={`Drag ${field.label}`}
+          {...attributes}
+          {...listeners}
+          onClick={(e) => e.stopPropagation()}
+          sx={{
+            width: 32,
+            height: 32,
+            border: 'none',
+            borderRadius: `${radius.chip}px`,
+            display: 'grid',
+            placeItems: 'center',
+            color: c.primaryIcon,
+            background: 'transparent',
+            cursor: 'grab',
+            touchAction: 'none',
+            '&:active': { cursor: 'grabbing' },
+            '&:hover': { background: c.surfaceFieldHover },
+          }}
+        >
+          <Icon name="drag_indicator" size={20} />
+        </Box>
+      </Tooltip>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>{field.label}</Typography>
+        <Box sx={{ fontSize: 12, color: c.inkFaint, fontFamily: mono }}>
+          {field.key} · {def.label}
+        </Box>
+      </Box>
+      <Stack
+        direction="row"
+        gap={0.5}
+        alignItems="center"
+        justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
+        flexWrap="wrap"
+        sx={{ gridColumn: { xs: '1 / -1', sm: 'auto' } }}
+      >
+        {field.visibleWhen && <Tag bg={c.success} fg={c.onSuccess}>conditional</Tag>}
+        {field.required && <Tag>required</Tag>}
+        {field.piiLevel === 'high' && <Tag bg={c.errorContainer} fg={c.errorInk}>PII</Tag>}
+        <IconButton size="small" aria-label="Move up" disabled={index === 0} onClick={(e) => { e.stopPropagation(); onMove(-1); }}>
+          <Icon name="arrow_upward" size={18} />
+        </IconButton>
+        <IconButton size="small" aria-label="Move down" disabled={index === sectionLength - 1} onClick={(e) => { e.stopPropagation(); onMove(1); }}>
+          <Icon name="arrow_downward" size={18} />
+        </IconButton>
+        <IconButton size="small" aria-label="Delete field" onClick={(e) => { e.stopPropagation(); onRemove(); }}>
+          <Icon name="delete" size={18} />
+        </IconButton>
+      </Stack>
+    </Box>
+  );
+}
+
 /** S-30 — Form builder. Palette / canvas / field settings, per the design. */
 export default function FormBuilder() {
   const { cid } = useParams();
@@ -83,6 +189,11 @@ export default function FormBuilder() {
   const publish = usePublishSchema();
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [cfgTab, setCfgTab] = useState(0);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const previewEngine = useFormEngine(schema ?? EMPTY_SCHEMA);
   const types = useMemo(() => listFieldTypes(), []);
@@ -134,6 +245,33 @@ export default function FormBuilder() {
         return { ...s, fields: fields.map((f, i) => ({ ...f, order: i })) };
       }),
     } : prev));
+
+  const reorderField = (sectionId: string, fieldId: string, targetId: string) => {
+    if (fieldId === targetId) return;
+    setSchema((prev) => (prev ? {
+      ...prev,
+      sections: prev.sections.map((s) => {
+        if (s.id !== sectionId) return s;
+        const from = s.fields.findIndex((f) => f.id === fieldId);
+        const to = s.fields.findIndex((f) => f.id === targetId);
+        if (from < 0 || to < 0) return s;
+        const fields = [...s.fields];
+        const [field] = fields.splice(from, 1);
+        fields.splice(to, 0, field!);
+        return { ...s, fields: fields.map((f, i) => ({ ...f, order: i })) };
+      }),
+    } : prev));
+  };
+
+  const finishFieldDrop = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromSection = active.data.current?.sectionId;
+    const toSection = over.data.current?.sectionId;
+    if (typeof active.id === 'string' && typeof over.id === 'string' && fromSection === toSection) {
+      reorderField(String(fromSection), active.id, over.id);
+    }
+  };
 
   return (
     <>
@@ -234,7 +372,13 @@ export default function FormBuilder() {
             <Typography sx={{ fontSize: 12, color: c.inkFaint, px: 1, pb: 1.5 }}>
               Registered, not hardcoded
             </Typography>
-            <Stack spacing={0.5}>
+            <Stack
+              spacing={0.5}
+              sx={{
+                display: { xs: 'grid', md: 'flex' },
+                gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))' },
+              }}
+            >
               {types.map((ft) => (
                 <Box
                   key={ft.type}
@@ -244,6 +388,7 @@ export default function FormBuilder() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
+                    minHeight: 48,
                     p: '12px 14px',
                     border: 'none',
                     borderRadius: '14px',
@@ -263,57 +408,34 @@ export default function FormBuilder() {
           </Box>
 
           {/* Canvas */}
-          <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, p: 2.5 }}>
+          <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, p: { xs: 1.5, sm: 2.5 } }}>
             {schema.sections.map((section) => (
               <Box key={section.id} sx={{ mb: 3, '&:last-of-type': { mb: 0 } }}>
                 <Typography variant="overline" sx={{ display: 'block', color: c.primaryInk, mb: 1.25 }}>
                   {section.title}
                 </Typography>
-                <Stack spacing={1.25}>
-                  {section.fields.map((f, idx) => {
-                    const def = getFieldType(f.type);
-                    const isSel = f.id === selectedId;
-                    return (
-                      <Stack
-                        key={f.id}
-                        direction="row"
-                        gap={1.75}
-                        alignItems="center"
-                        onClick={() => setSelectedId(f.id)}
-                        sx={{
-                          cursor: 'pointer',
-                          p: 2,
-                          borderRadius: `${radius.row}px`,
-                          background: isSel ? c.primaryContainer : c.surfaceContainer,
-                          border: `1px solid ${isSel ? c.accent : 'transparent'}`,
-                          transition: `background 160ms ${ease}`,
-                        }}
-                      >
-                        <Icon name="drag_indicator" size={20} color={c.primaryIcon} />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>{f.label}</Typography>
-                          <Box sx={{ fontSize: 12, color: c.inkFaint, fontFamily: mono }}>
-                            {f.key} · {def.label}
-                          </Box>
-                        </Box>
-                        {f.visibleWhen && <Tag bg={c.success} fg={c.onSuccess}>conditional</Tag>}
-                        {f.required && <Tag>required</Tag>}
-                        {f.piiLevel === 'high' && <Tag bg={c.errorContainer} fg={c.errorInk}>PII</Tag>}
-                        <Stack direction="row">
-                          <IconButton size="small" aria-label="Move up" onClick={(e) => { e.stopPropagation(); moveField(section.id, idx, -1); }}>
-                            <Icon name="arrow_upward" size={18} />
-                          </IconButton>
-                          <IconButton size="small" aria-label="Move down" onClick={(e) => { e.stopPropagation(); moveField(section.id, idx, 1); }}>
-                            <Icon name="arrow_downward" size={18} />
-                          </IconButton>
-                          <IconButton size="small" aria-label="Delete field" onClick={(e) => { e.stopPropagation(); removeField(f.id); }}>
-                            <Icon name="delete" size={18} />
-                          </IconButton>
-                        </Stack>
-                      </Stack>
-                    );
-                  })}
-                </Stack>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={finishFieldDrop}>
+                  <SortableContext items={section.fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+                    <Stack spacing={1.25}>
+                      {section.fields.map((f, idx) => {
+                        const isSel = f.id === selectedId;
+                        return (
+                          <SortableFieldCard
+                            key={f.id}
+                            field={f}
+                            index={idx}
+                            sectionId={section.id}
+                            sectionLength={section.fields.length}
+                            selected={isSel}
+                            onSelect={() => setSelectedId(f.id)}
+                            onMove={(dir) => moveField(section.id, idx, dir)}
+                            onRemove={() => removeField(f.id)}
+                          />
+                        );
+                      })}
+                    </Stack>
+                  </SortableContext>
+                </DndContext>
               </Box>
             ))}
           </Box>

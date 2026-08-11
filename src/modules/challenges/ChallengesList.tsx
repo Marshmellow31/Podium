@@ -59,6 +59,10 @@ export default function ChallengesList() {
         teamsEnabled: source.teamsEnabled ?? false,
         maxTeamSize: source.maxTeamSize ?? 4,
         leaderboardMode: source.leaderboardMode,
+        seriesId: source.seriesId ?? null,
+        seriesName: source.seriesName ?? null,
+        seriesLeaderboardEnabled: source.seriesLeaderboardEnabled ?? false,
+        seriesPointsWeight: source.seriesPointsWeight ?? 1,
         stages: source.stages.map((s) => ({ ...s, state: 'locked' as const })),
         // Dates are the one thing that never survives a copy: they described
         // the original's calendar, and silently inheriting them would create a

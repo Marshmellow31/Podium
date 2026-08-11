@@ -73,6 +73,10 @@ export interface Challenge {
   timeline: { registrationClosesAt: string; submissionClosesAt: string; resultsAt: string };
   counters: { registrations: number; submissions: number; reviewsCompleted: number; reviewsPending: number };
   leaderboardMode: 'hidden' | 'live' | 'afterClose' | 'public';
+  seriesId?: string | null;
+  seriesName?: string | null;
+  seriesLeaderboardEnabled?: boolean;
+  seriesPointsWeight?: number;
   prize: string;
   /**
    * Withhold entrant identity from judges. Optional so existing challenges keep
