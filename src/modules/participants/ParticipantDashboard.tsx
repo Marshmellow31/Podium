@@ -162,11 +162,13 @@ export default function ParticipantDashboard() {
         Open for registration
       </SectionLabel>
       {open.length === 0 ? (
-        <EmptyState
-          icon="event_busy"
-          title="No challenges running"
-          body="There are no public challenges open right now. Check back soon."
-        />
+        <Box sx={{ mb: 4.5 }}>
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+          />
+        </Box>
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2, mb: 4.5 }}>
           {open.map((ch) => (
@@ -175,7 +177,7 @@ export default function ParticipantDashboard() {
         </Box>
       )}
 
-      <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceContainer, p: 3 }}>
+      <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceContainer, p: 3, mt: 0.5 }}>
         <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ mb: 2.25 }}>
           <Typography variant="h6">Recent awards</Typography>
           <Button size="small" variant="text" component={Link} to="/me/achievements">All awards</Button>
