@@ -23,6 +23,18 @@ jobs:
   verify:
     name: Typecheck, lint, unit tests
     runs-on: ubuntu-latest
+    env:
+      # Public Firebase config values. The app refuses to boot without them
+      # (config/env.ts), and tests/build may import env-backed modules. These
+      # placeholders never touch a real project.
+      VITE_FIREBASE_API_KEY: ci-placeholder
+      VITE_FIREBASE_AUTH_DOMAIN: ci.firebaseapp.com
+      VITE_FIREBASE_PROJECT_ID: ci-placeholder
+      VITE_FIREBASE_STORAGE_BUCKET: ci.firebasestorage.app
+      VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+      VITE_FIREBASE_APP_ID: '1:000000000000:web:ci'
+      VITE_DEFAULT_ORG_ID: org_demo
+      VITE_USE_EMULATOR: 'false'
     steps:
       - uses: actions/checkout@v4
 
@@ -56,18 +68,6 @@ jobs:
       # generate.
       - name: Production build
         run: npm run build
-        env:
-          # Public Firebase config values. The app refuses to boot without them
-          # (config/env.ts), and the build inlines them — so CI needs
-          # placeholders. These never touch a real project.
-          VITE_FIREBASE_API_KEY: ci-placeholder
-          VITE_FIREBASE_AUTH_DOMAIN: ci.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_STORAGE_BUCKET: ci.firebasestorage.app
-          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
-          VITE_FIREBASE_APP_ID: '1:000000000000:web:ci'
-          VITE_DEMO_ORG_ID: org_demo
-          VITE_USE_EMULATOR: 'false'
 
   rules:
     name: Security rules (emulator)

@@ -350,6 +350,13 @@ describe('submissions', () => {
   const subPath = (sid: string) => ['organizations', ORG, 'challenges', CHALLENGE, 'submissions', sid] as const;
 
   it('lets a user submit their own entry', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'organizations', ORG, 'challenges', CHALLENGE, 'registrations', 'u_member'), {
+        userId: 'u_member',
+        status: 'active',
+      });
+    });
+
     const db = asUser('u_member');
     await assertSucceeds(setDoc(doc(db, ...subPath('u_member_submission')), {
       userId: 'u_member', status: 'draft',

@@ -20,6 +20,7 @@ beforeAll(() => {
   vi.stubEnv('VITE_FIREBASE_STORAGE_BUCKET', 'test.firebasestorage.app');
   vi.stubEnv('VITE_FIREBASE_MESSAGING_SENDER_ID', '1234567890');
   vi.stubEnv('VITE_FIREBASE_APP_ID', '1:123:web:abc');
+  vi.stubEnv('VITE_DEFAULT_ORG_ID', 'org_test');
 });
 
 afterAll(() => {
