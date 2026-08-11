@@ -3,7 +3,7 @@ import {
 } from 'react';
 import {
   onAuth, signInWithEmail, signUpWithEmail, sendPasswordReset, resendVerification,
-  signInWithGoogle, signInAsGuest, isGuest, signOut, type AuthUser,
+  signInWithGoogle, signOut, type AuthUser,
 } from '@core/firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { demoOrgId } from '@core/firebase/app';
@@ -41,18 +41,13 @@ export interface AuthValue {
   signInEmail: (email: string, password: string) => Promise<boolean>;
   signUpEmail: (email: string, password: string, displayName?: string) => Promise<boolean>;
   signInGoogle: () => Promise<boolean>;
-  /** Anonymous session. Temporary scaffolding — see `core/firebase/auth.ts`. */
-  signInGuest: () => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
   resendVerificationEmail: () => Promise<boolean>;
   signOutNow: () => Promise<void>;
-  /** True for an anonymous session: no recovery, no invite, no organization. */
-  guest: boolean;
-
   /** Which surface to show. A view preference, never a permission. See mode.ts. */
   mode: AppMode | null;
   setMode: (mode: AppMode) => void;
-  /** True once someone has chosen a door; false sends them to onboarding. */
+  /** True once a signed-in account has selected its dashboard surface. */
   onboarded: boolean;
 
   /**
@@ -80,11 +75,9 @@ const AuthContext = createContext<AuthValue>({
   signInEmail: async () => false,
   signUpEmail: async () => false,
   signInGoogle: async () => false,
-  signInGuest: async () => false,
   resetPassword: async () => false,
   resendVerificationEmail: async () => false,
   signOutNow: async () => {},
-  guest: false,
   mode: null,
   setMode: noop,
   onboarded: false,
@@ -139,11 +132,6 @@ function explain(err: unknown): string | null {
       return 'An account already exists with that email, created a different way. Sign in with your password instead.';
 
     // --- Project configuration ---------------------------------------------
-    // `admin-restricted-operation` is what anonymous sign-in returns when the
-    // provider is switched off, and the wording ("restricted") suggests a
-    // permissions problem in the app rather than a toggle in the console.
-    case 'auth/admin-restricted-operation':
-      return 'Guest sign-in is not enabled on this Firebase project. Turn on the Anonymous provider under Firebase console → Authentication → Sign-in method, or sign in with an email address.';
     case 'auth/operation-not-allowed':
       return 'That sign-in method is not enabled on this Firebase project. Enable it under Firebase console → Authentication → Sign-in method.';
     case 'auth/unauthorized-domain':
@@ -183,12 +171,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       return onAuth((u) => {
-        setUser(u);
+        if (u?.isAnonymous) void signOut();
+        const account = u?.isAnonymous ? null : u;
+        setUser(account);
         setReady(true);
         // Re-derived on every identity change rather than kept as independent
         // state: an unlock belongs to one account, so signing out — or signing
         // in as someone else on a shared machine — must not inherit it.
-        setAdminUnlocked(isUnlocked(u?.uid));
+        setAdminUnlocked(isUnlocked(account?.uid));
       });
     } catch {
       // Auth not configured on the project: reads are public, so the app still
@@ -248,7 +238,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUpEmail: (email, password, displayName) =>
         run(() => signUpWithEmail(email, password, displayName)),
       signInGoogle: () => run(signInWithGoogle),
-      signInGuest: () => run(signInAsGuest),
 
       // Worded as a conditional on purpose: Firebase succeeds for an unknown
       // address too, and saying "sent" would be a claim we cannot support.
@@ -273,8 +262,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setAdminUnlocked(false);
         });
       },
-
-      guest: isGuest(user),
 
       mode,
       setMode: (next: AppMode) => {

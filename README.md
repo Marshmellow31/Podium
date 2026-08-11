@@ -1,4 +1,4 @@
-# Forge
+# Podium
 
 **The operating system for engagement.**
 
@@ -34,7 +34,7 @@ contest, a hackathon, an employee engagement campaign, a step challenge, an
 assignment submission, a scholarship application, or a meme contest.
 Organizations **configure** it rather than requesting a feature.
 
-| Instead of | Forge gives you |
+| Instead of | Podium gives you |
 |---|---|
 | Google Forms | A JSON-driven form builder — 24 field types, conditional logic, live validation |
 | Google Drive + email | Drive links validated and stored as structured file references |
@@ -49,7 +49,7 @@ Organizations **configure** it rather than requesting a feature.
 
 ### Three people, three experiences
 
-Forge separates **who you are** from **what you are looking at**. A single
+Podium separates **who you are** from **what you are looking at**. A single
 account can be an organizer in one org and a participant in another, so the app
 asks which door you want rather than inferring it.
 
@@ -100,7 +100,7 @@ offline. The app is an installable PWA with a Workbox service worker.
 
 ### Where images come from
 
-Forge **stores references, not bytes** — files stay in the organization's own
+Podium **stores references, not bytes** — files stay in the organization's own
 storage, which is what makes a free tier possible.
 
 For a challenge cover or an org logo you **paste any link**. If it is a Google
@@ -112,7 +112,7 @@ flagged, because those are personal-session links that are usually not shared an
 will 404 for everyone but you.
 
 **The one thing to get right:** the Drive file must be shared as *Anyone with the
-link → Viewer*. Forge cannot make it public for you.
+link → Viewer*. Podium cannot make it public for you.
 
 ---
 

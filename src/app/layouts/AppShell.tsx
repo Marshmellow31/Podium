@@ -1,11 +1,14 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Box, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { AnimatePresence, motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { c, radius, shadow, ease } from '@shared/design/tokens';
 import { useCurrentUser, useMyRegistrations, usePublicChallenges } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 import { NotificationBell } from '@shared/ui/NotificationBell';
+import { PodiumMark } from '@shared/ui/PodiumMark';
+import { pageMotion, spring } from '@shared/ui/motion';
 
 /**
  * The single application shell.
@@ -75,7 +78,7 @@ const BOTTOM_NAV: NavItem[] = [
 ];
 
 const SCREEN_TITLES: { test: (p: string) => boolean; title: string }[] = [
-  { test: (p) => p === '/home', title: 'Forge' },
+  { test: (p) => p === '/home', title: 'Podium' },
   { test: (p) => p.startsWith('/discover'), title: 'Discover' },
   { test: (p) => /^\/c\/[^/]+\/register$/.test(p), title: 'Entry form' },
   { test: (p) => p.startsWith('/c/'), title: 'Challenge' },
@@ -94,7 +97,6 @@ const SCREEN_TITLES: { test: (p: string) => boolean; title: string }[] = [
 const MODE_LABEL: Record<string, string> = {
   participant: 'Entering challenges',
   organizer: 'Organizing',
-  demo: 'Browsing Forge',
 };
 
 const isActive = (item: NavItem, path: string) =>
@@ -103,18 +105,19 @@ const isActive = (item: NavItem, path: string) =>
 export default function AppShell() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const navigate = useNavigate();
 
   const inOrgContext = pathname.startsWith('/org');
   const primaryLabel = inOrgContext ? 'New challenge' : 'Enter a challenge';
   const primaryTo = inOrgContext ? '/org/challenges/new' : '/discover';
-  const screenTitle = SCREEN_TITLES.find((s) => s.test(pathname))?.title ?? 'Forge';
+  const screenTitle = SCREEN_TITLES.find((s) => s.test(pathname))?.title ?? 'Podium';
   const { user, signOutNow, mode, adminUnlocked } = useAuth();
   const { data: profile } = useCurrentUser(user?.uid);
   const { data: myRegistrations = [] } = useMyRegistrations(user?.uid);
   const { data: challenges = [] } = usePublicChallenges();
-  const displayName = user?.displayName ?? profile?.name ?? 'Guest';
+  const displayName = user?.displayName ?? profile?.name ?? 'Account';
   const initials = displayName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   // Real counts, from data already in the cache. A zero renders as no badge
@@ -134,11 +137,10 @@ export default function AppShell() {
    * rather than as "this is not for you". They can still reach any of it by URL,
    * and switching surface is one click away in the footer.
    *
-   * The group stays visible while the mode is unset, so nothing disappears for
-   * someone who has not been through onboarding.
+   * Admin sign-in sets organizer mode before entering the shell.
    */
   const visibleGroups = NAV_GROUPS.filter(
-    (g) => g.title !== 'Organizing' || mode === null || mode === 'organizer',
+    (g) => g.title !== 'Organizing' || mode === 'organizer',
   ).map((g) =>
     g.title === 'Organizing' && adminUnlocked
       ? { ...g, items: [...g.items, ADMIN_NAV] }
@@ -166,10 +168,8 @@ export default function AppShell() {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: '8px 16px 20px' }} component={Link} to="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: '12px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 19, fontWeight: 800, letterSpacing: 0 }}>
-              F
-            </Box>
-            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>Forge</Typography>
+            <PodiumMark size={36} radius={12} />
+            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>Podium</Typography>
           </Stack>
 
           <Box
@@ -253,22 +253,13 @@ export default function AppShell() {
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>{displayName}</Typography>
               <Typography noWrap sx={{ fontSize: 12, color: c.inkMuted }}>
-                {user ? MODE_LABEL[mode ?? 'participant'] : 'Viewing · read-only'}
+                {MODE_LABEL[mode ?? 'participant']}
               </Typography>
             </Box>
-            {/* Reading needs no identity; writing does. Signed out, this leads
-                to the front door rather than silently minting a guest account —
-                choosing a surface is the thing that actually orients someone. */}
-            <Tooltip title={user ? 'Sign out' : 'Sign in or switch surface'}>
-              {user ? (
-                <IconButton size="small" aria-label="Sign out" onClick={() => void signOutNow()}>
-                  <Icon name="logout" size={20} />
-                </IconButton>
-              ) : (
-                <IconButton size="small" aria-label="Sign in" component={Link} to="/welcome">
-                  <Icon name="login" size={20} />
-                </IconButton>
-              )}
+            <Tooltip title="Sign out">
+              <IconButton size="small" aria-label="Sign out" onClick={() => void signOutNow()}>
+                <Icon name="logout" size={20} />
+              </IconButton>
             </Tooltip>
           </Stack>
         </Box>
@@ -287,13 +278,21 @@ export default function AppShell() {
           >
             {!isDesktop && (
               <Stack direction="row" alignItems="center" spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
-                <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 17, fontWeight: 800 }}>
-                  F
-                </Box>
+                <PodiumMark size={32} radius={10} />
                 <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
                   {screenTitle}
                 </Typography>
               </Stack>
+            )}
+            {isDesktop && (
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography noWrap sx={{ fontSize: 22, fontWeight: 720, letterSpacing: 0, lineHeight: 1.15 }}>
+                  {screenTitle}
+                </Typography>
+                <Typography noWrap sx={{ mt: 0.35, fontSize: 12.5, color: c.inkMuted }}>
+                  {mode === 'organizer' ? 'Manage challenges, members and results' : 'Track entries, awards and open challenges'}
+                </Typography>
+              </Box>
             )}
             {isDesktop && (
               <Stack
@@ -301,12 +300,12 @@ export default function AppShell() {
                 alignItems="center"
                 spacing={1.5}
                 sx={{
-                  flex: 1,
-                  maxWidth: 560,
-                  height: 52,
-                  px: 2.5,
-                  borderRadius: '26px',
+                  width: 'min(42vw, 520px)',
+                  height: 48,
+                  px: 2,
+                  borderRadius: `${radius.field}px`,
                   background: c.surfaceField,
+                  border: `1px solid ${c.outlineSoft}`,
                   transition: 'background 200ms',
                   '&:hover': { background: c.surfaceFieldHover },
                 }}
@@ -318,20 +317,19 @@ export default function AppShell() {
                   aria-label="Search"
                   sx={{ flex: 1, border: 'none', background: 'transparent', fontSize: 15, minWidth: 0 }}
                 />
-                <Box component="span" sx={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: c.inkFaint, border: '1px solid #D5CDB8', borderRadius: '6px', px: 0.75, py: 0.25 }}>
+                <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: c.inkFaint, border: `1px solid ${c.outline}`, borderRadius: '6px', px: 0.75, py: 0.25 }}>
                   ⌘K
                 </Box>
               </Stack>
             )}
-            <Box sx={{ flex: isDesktop ? undefined : 'none' }} />
+            {!isDesktop && <Box sx={{ flex: 'none' }} />}
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <NotificationBell />
-              <Tooltip title={user ? `Signed in as ${displayName} — sign out` : 'Sign in'}>
+              <Tooltip title={`Signed in as ${displayName} — sign out`}>
                 <Box
-                  component={user ? 'button' : Link}
-                  to={user ? undefined : '/signin'}
-                  aria-label={user ? `Signed in as ${displayName}. Sign out` : 'Sign in'}
-                  onClick={user ? () => void signOutNow() : undefined}
+                  component="button"
+                  aria-label={`Signed in as ${displayName}. Sign out`}
+                  onClick={() => void signOutNow()}
                   sx={{
                     width: 40, height: 40, ml: 0.5, p: 0, border: 'none', cursor: 'pointer',
                     borderRadius: '50%', background: c.inverse, color: c.primary,
@@ -340,7 +338,7 @@ export default function AppShell() {
                     '&:hover': { transform: 'scale(1.06)' },
                   }}
                 >
-                  {user ? initials : <Icon name="login" size={20} />}
+                  {initials}
                 </Box>
               </Tooltip>
             </Stack>
@@ -349,9 +347,20 @@ export default function AppShell() {
 
         <Box sx={{ flex: 1, px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 } }}>
           <Box sx={{ maxWidth: 1240, mx: 'auto' }}>
-            <Box className="rise" key={pathname}>
-              <Outlet />
-            </Box>
+            <AnimatePresence mode="wait" initial={false}>
+              <Box
+                key={location.key || pathname}
+                component={motion.div}
+                variants={pageMotion}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={spring}
+                sx={{ willChange: 'transform, opacity, filter' }}
+              >
+                <Outlet />
+              </Box>
+            </AnimatePresence>
           </Box>
         </Box>
 

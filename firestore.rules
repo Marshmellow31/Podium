@@ -196,7 +196,7 @@ service cloud.firestore {
       //
       // The document holds a signing secret, so it is readable ONLY by someone
       // who could already create one. A member who could read it could forge
-      // requests that the receiver would trust as coming from Forge — which is
+      // requests that the receiver would trust as coming from Podium — which is
       // the entire point of signing them.
       match /webhooks/{webhookId} {
         allow read, write: if hasPerm(orgId, 'integration.manage');

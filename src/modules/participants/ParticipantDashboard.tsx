@@ -7,7 +7,7 @@ import {
 import { StageStepper } from '@shared/ui/StageStepper';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { c, radius, ease } from '@shared/design/tokens';
-import { useChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
+import { usePublicChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
@@ -26,7 +26,7 @@ const BADGE_ICONS: Record<string, string> = {
 export default function ParticipantDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: challenges = [], isLoading, error } = useChallenges();
+  const { data: challenges = [], isLoading, error } = usePublicChallenges();
   const { data: badges = [] } = useBadges();
   const { data: certificates = [] } = useCertificates();
   const { data: profile } = useCurrentUser(user?.uid);
@@ -75,7 +75,18 @@ export default function ParticipantDashboard() {
         </Stack>
       </Hero>
 
-      <QueryBoundary isLoading={isLoading} error={error}>
+      <QueryBoundary
+        isLoading={isLoading}
+        error={error}
+        errorFallback={(
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+            action={<Button variant="contained" component={Link} to="/discover">Browse challenges</Button>}
+          />
+        )}
+      >
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 2, mb: 4.5 }}>
         <StatTile label="Points" value={stats.points.toLocaleString()} icon="bolt" />
         <StatTile label="Day streak" value={stats.streakDays} icon="local_fire_department" />
@@ -150,11 +161,19 @@ export default function ParticipantDashboard() {
       <SectionLabel action={<Button size="small" variant="text" component={Link} to="/discover">Browse all</Button>}>
         Open for registration
       </SectionLabel>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2, mb: 4.5 }}>
-        {open.map((ch) => (
-          <ChallengeCard key={ch.id} challenge={ch} to={`/c/${ch.slug}`} />
-        ))}
-      </Box>
+      {open.length === 0 ? (
+        <EmptyState
+          icon="event_busy"
+          title="No challenges running"
+          body="There are no public challenges open right now. Check back soon."
+        />
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2, mb: 4.5 }}>
+          {open.map((ch) => (
+            <ChallengeCard key={ch.id} challenge={ch} to={`/c/${ch.slug}`} />
+          ))}
+        </Box>
+      )}
 
       <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceContainer, p: 3 }}>
         <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ mb: 2.25 }}>

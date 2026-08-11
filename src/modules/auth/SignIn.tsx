@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box, Button, CircularProgress, Divider, IconButton, InputAdornment, Stack, TextField, Typography,
 } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
+import { PodiumMark } from '@shared/ui/PodiumMark';
 import { useAuth } from '@core/auth';
 import {
   hasErrors, MIN_PASSWORD_LENGTH, passwordStrength, validateSignIn, validateSignUp,
   type FieldErrors,
 } from '@core/auth/credentials';
-import { HOME_FOR, type AppMode } from '@core/auth/mode';
 import { c, ease, radius, shadow } from '@shared/design/tokens';
 
 type Tab = 'signin' | 'signup';
@@ -17,14 +17,14 @@ type Tab = 'signin' | 'signup';
 /** A compact customer account screen. Organization roles are resolved after sign-in. */
 export default function SignIn() {
   const nav = useNavigate();
-  const location = useLocation();
   const [params] = useSearchParams();
+  const adminSignIn = params.get('as') === 'admin';
   const {
     user, ready, busy, error, notice, clearMessages,
-    signInEmail, signUpEmail, signInGoogle, resetPassword, mode,
+    signInEmail, signUpEmail, signInGoogle, resetPassword, mode, setMode,
   } = useAuth();
 
-  const [tab, setTab] = useState<Tab>(params.get('mode') === 'signup' ? 'signup' : 'signin');
+  const [tab, setTab] = useState<Tab>(!adminSignIn && params.get('mode') === 'signup' ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -32,16 +32,14 @@ export default function SignIn() {
   const [touched, setTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const from = (location.state as { from?: string } | null)?.from;
-  const next = params.get('next') ?? from ?? null;
-  const destination = useMemo(
-    () => next ?? (mode ? HOME_FOR[mode as AppMode] : '/welcome'),
-    [mode, next],
-  );
+  const destination = adminSignIn ? '/org' : '/home';
 
   useEffect(() => {
-    if (ready && user) nav(destination, { replace: true });
-  }, [destination, nav, ready, user]);
+    if (!ready || !user) return;
+    const destinationMode = adminSignIn ? 'organizer' : 'participant';
+    if (mode !== destinationMode) setMode(destinationMode);
+    nav(destination, { replace: true });
+  }, [adminSignIn, destination, mode, nav, ready, setMode, user]);
 
   const resetMessages = () => {
     setTouched(false);
@@ -93,25 +91,27 @@ export default function SignIn() {
     <Box sx={{ minHeight: '100vh', px: { xs: 2, sm: 3 }, py: { xs: 2, md: 3.5 }, background: c.surface, color: c.ink }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%', maxWidth: 1040, mx: 'auto', mb: { xs: 3, md: 4 } }}>
         <Brand />
-        <Button component={Link} to="/" variant="text" startIcon={<Icon name="arrow_back" size={18} />}>Back to competitions</Button>
+        <Button component={Link} to="/" variant="text" startIcon={<Icon name="arrow_back" size={18} />}>Back</Button>
       </Stack>
 
       <Box sx={{ width: '100%', maxWidth: 440, mx: 'auto' }}>
         <Box component="form" onSubmit={(event) => void submit(event)} noValidate sx={{ p: { xs: 3, sm: 4 }, borderRadius: `${radius.panel}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, boxShadow: shadow.raised }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0, textTransform: 'uppercase', color: c.primaryInk, mb: 1.25 }}>{tab === 'signin' ? 'Welcome back' : 'New to Forge'}</Typography>
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: c.primaryInk, mb: 1.25 }}>{adminSignIn ? 'Administration' : tab === 'signin' ? 'Welcome back' : 'New to Podium'}</Typography>
           <Typography component="h1" sx={{ fontSize: { xs: 29, sm: 33 }, fontWeight: 760, lineHeight: 1.1, letterSpacing: 0, mb: 1 }}>
-            {tab === 'signin' ? 'Sign in to your account' : 'Create your account'}
+            {adminSignIn ? 'Sign in as admin' : tab === 'signin' ? 'Sign in to your account' : 'Create your account'}
           </Typography>
           <Typography sx={{ fontSize: 13.5, lineHeight: 1.6, color: c.inkMuted, mb: 3 }}>
-            One account for competitions and organization invitations. Admin access is assigned separately.
+            {adminSignIn ? 'Use the account that has organization access.' : 'Sign in to enter competitions and manage your submissions.'}
           </Typography>
 
-          <Segmented value={tab} onChange={switchTab} />
+          {!adminSignIn && <Segmented value={tab} onChange={switchTab} />}
           {error && <Message tone="error" icon="error" text={error} />}
           {notice && <Message tone="success" icon="mark_email_read" text={notice} />}
 
-          <Button type="button" variant="outlined" fullWidth disabled={busy} onClick={() => void signInGoogle()} startIcon={<GoogleMark />} sx={{ height: 50, mt: 2.5 }}>Continue with Google</Button>
-          <Divider sx={{ my: 2.25, fontSize: 11.5, color: c.inkFaint }}>or use email</Divider>
+          {!adminSignIn && <>
+            <Button type="button" variant="outlined" fullWidth disabled={busy} onClick={() => void signInGoogle()} startIcon={<GoogleMark />} sx={{ height: 50, mt: 2.5 }}>Continue with Google</Button>
+            <Divider sx={{ my: 2.25, fontSize: 11.5, color: c.inkFaint }}>or use email</Divider>
+          </>}
 
           <Stack gap={2}>
             {tab === 'signup' && <TextField label="Your name" value={displayName} onChange={(event) => { setDisplayName(event.target.value); clearMessages(); }} autoComplete="name" placeholder="How people will see you" {...field('displayName')} />}
@@ -143,15 +143,15 @@ export default function SignIn() {
             <Typography sx={{ mt: 1.5, fontSize: 11.5, lineHeight: 1.5, textAlign: 'center', color: c.inkFaint }}>Verify your email before accepting organization invitations.</Typography>
           )}
 
-          <Typography sx={{ mt: 2.5, pt: 2.25, borderTop: `1px solid ${c.outline}`, fontSize: 13, color: c.inkMuted, textAlign: 'center' }}>
+          {!adminSignIn && <Typography sx={{ mt: 2.5, pt: 2.25, borderTop: `1px solid ${c.outline}`, fontSize: 13, color: c.inkMuted, textAlign: 'center' }}>
             {tab === 'signin' ? 'Need an account? ' : 'Already registered? '}
             <InlineButton onClick={() => switchTab(tab === 'signin' ? 'signup' : 'signin')}>{tab === 'signin' ? 'Create one' : 'Sign in'}</InlineButton>
-          </Typography>
+          </Typography>}
         </Box>
 
         <Stack direction="row" alignItems="center" justifyContent="center" gap={1} sx={{ mt: 2.25 }}>
           <Icon name="lock" size={16} color={c.inkFaint} />
-          <Typography sx={{ fontSize: 11.5, color: c.inkFaint }}>Your role cannot be chosen or changed from this screen.</Typography>
+          <Typography sx={{ fontSize: 11.5, color: c.inkFaint }}>{adminSignIn ? 'Organization access is verified after sign-in.' : 'Your account keeps entries and results private.'}</Typography>
         </Stack>
       </Box>
     </Box>
@@ -161,17 +161,17 @@ export default function SignIn() {
 function Brand() {
   return (
     <Stack component={Link} to="/" direction="row" alignItems="center" gap={1.1} sx={{ color: 'inherit', textDecoration: 'none' }}>
-      <Box sx={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: '12px', background: c.inverse, color: c.primary, fontSize: 20, fontWeight: 800 }}>F</Box>
-      <Typography sx={{ fontSize: 22, fontWeight: 750, letterSpacing: 0 }}>Forge</Typography>
+      <PodiumMark size={38} radius={12} />
+      <Typography sx={{ fontSize: 22, fontWeight: 750, letterSpacing: 0 }}>Podium</Typography>
     </Stack>
   );
 }
 
 function Segmented({ value, onChange }: { value: Tab; onChange: (next: Tab) => void }) {
   return (
-    <Stack direction="row" role="tablist" sx={{ p: 0.5, borderRadius: `${radius.pill}px`, background: c.surfaceField }}>
+    <Stack direction="row" role="tablist" sx={{ p: 0.5, borderRadius: `${radius.field}px`, background: c.surfaceField }}>
       {([['signin', 'Sign in'], ['signup', 'Create account']] as const).map(([key, label]) => (
-        <Box key={key} component="button" type="button" role="tab" aria-selected={value === key} onClick={() => onChange(key)} sx={{ flex: 1, height: 40, border: 'none', cursor: 'pointer', borderRadius: `${radius.pill}px`, font: 'inherit', fontSize: 13.5, fontWeight: value === key ? 750 : 500, background: value === key ? c.surfaceCard : 'transparent', color: value === key ? c.ink : c.inkMuted, boxShadow: value === key ? shadow.raised : 'none', transition: `all 180ms ${ease}` }}>{label}</Box>
+        <Box key={key} component="button" type="button" role="tab" aria-selected={value === key} onClick={() => onChange(key)} sx={{ flex: 1, height: 38, border: 'none', cursor: 'pointer', borderRadius: `${radius.chip}px`, font: 'inherit', fontSize: 13.5, fontWeight: value === key ? 650 : 500, background: value === key ? c.surfaceCard : 'transparent', color: value === key ? c.ink : c.inkMuted, boxShadow: value === key ? shadow.raised : 'none', transition: `all 180ms ${ease}` }}>{label}</Box>
       ))}
     </Stack>
   );

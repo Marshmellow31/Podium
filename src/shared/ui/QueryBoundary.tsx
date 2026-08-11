@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { Box, Stack } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { c, radius } from '@shared/design/tokens';
+import { softSpring, surfaceMotion } from './motion';
 
 /**
  * The three states every remote read has. Screens render this instead of
@@ -13,12 +15,14 @@ export function QueryBoundary({
   isLoading,
   error,
   children,
+  errorFallback,
   skeletonHeight = 120,
   skeletonRows = 3,
 }: {
   isLoading: boolean;
   error?: unknown;
   children: ReactNode;
+  errorFallback?: ReactNode;
   skeletonHeight?: number;
   skeletonRows?: number;
 }) {
@@ -26,17 +30,33 @@ export function QueryBoundary({
     return (
       <Stack spacing={2}>
         {Array.from({ length: skeletonRows }, (_, i) => (
-          <Box key={i} className="shimmer" sx={{ height: skeletonHeight, borderRadius: `${radius.card}px` }} />
+          <Box
+            key={i}
+            component={motion.div}
+            className="shimmer"
+            variants={surfaceMotion}
+            initial="initial"
+            animate="animate"
+            transition={{ ...softSpring, delay: i * 0.045 }}
+            sx={{ height: skeletonHeight, borderRadius: `${radius.card}px` }}
+          />
         ))}
       </Stack>
     );
   }
 
   if (error) {
+    if (errorFallback) return <>{errorFallback}</>;
+
     const message = error instanceof Error ? error.message : String(error);
     const denied = /permission|insufficient/i.test(message);
     return (
       <Stack
+        component={motion.div}
+        variants={surfaceMotion}
+        initial="initial"
+        animate="animate"
+        transition={softSpring}
         direction="row"
         gap={2}
         sx={{ p: 3, borderRadius: `${radius.card}px`, background: c.errorContainer, color: c.onErrorContainer }}

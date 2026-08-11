@@ -27,8 +27,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon-32.png', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: 'Forge — run any challenge',
-        short_name: 'Forge',
+        name: 'Podium — run any challenge',
+        short_name: 'Podium',
         description:
           'Create, run, judge and reward challenges of any kind. Registration, submissions, judging and results in one place.',
         theme_color: '#FDF8EC',

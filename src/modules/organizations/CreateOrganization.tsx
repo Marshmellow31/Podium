@@ -115,7 +115,7 @@ export default function CreateOrganization() {
           fullWidth
           value={effectiveSlug}
           onChange={(e) => setSlug(slugify(e.target.value))}
-          helperText={`forge.app/${effectiveSlug || '…'}`}
+          helperText={`podium.app/${effectiveSlug || '…'}`}
         />
 
         <TextField

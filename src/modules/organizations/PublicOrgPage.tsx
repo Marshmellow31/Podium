@@ -5,13 +5,14 @@ import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { Blobs, EmptyState, Eyebrow, Num, StatTile } from '@shared/ui/primitives';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { OrgLogo } from '@shared/ui/OrgLogo';
+import { PodiumMark } from '@shared/ui/PodiumMark';
 import { useOrg, usePublicChallenges } from '@core/firebase/hooks';
 import { c, radius } from '@shared/design/tokens';
 
 /**
  * S-09 — Public organization page. ROADMAP Phase 2.
  *
- * The page an organiser sends people to: `forge.app/o/iiitv`. Reachable signed
+ * The page an organiser sends people to: `podium.app/o/iiitv`. Reachable signed
  * out, because the whole purpose is to be shared with people who have no
  * account yet — asking them to sign in before they can see what a challenge
  * even is loses most of them.
@@ -49,14 +50,12 @@ export default function PublicOrgPage() {
           to="/"
           sx={{ display: 'flex', alignItems: 'center', gap: 1.25, textDecoration: 'none', color: 'inherit' }}
         >
-          <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, color: c.primary, display: 'grid', placeItems: 'center', fontSize: 17, fontWeight: 800 }}>
-            F
-          </Box>
-          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: 0 }}>Forge</Typography>
+          <PodiumMark size={32} radius={10} />
+          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: 0 }}>Podium</Typography>
         </Box>
         <Box sx={{ flex: 1 }} />
         <Button component={Link} to="/discover" variant="text">Discover</Button>
-        <Button component={Link} to="/welcome" variant="contained">Get started</Button>
+        <Button component={Link} to="/home" variant="contained">Dashboard</Button>
       </Stack>
 
       <Box sx={{ maxWidth: 1100, mx: 'auto', px: { xs: 2.5, md: 5 }, pb: 8 }}>
@@ -65,7 +64,7 @@ export default function PublicOrgPage() {
             <EmptyState
               icon="domain_disabled"
               title="No organization at this address"
-              body={`Nothing on Forge is published at /o/${slug ?? ''}.`}
+              body={`Nothing on Podium is published at /o/${slug ?? ''}.`}
               action={<Button component={Link} to="/discover" variant="contained">Browse challenges</Button>}
             />
           ) : (
@@ -86,7 +85,7 @@ export default function PublicOrgPage() {
                       {org.name}
                     </Typography>
                     <Typography sx={{ fontSize: 14, color: c.inkMuted, mt: 0.5 }}>
-                      forge.app/o/{org.slug}
+                      podium.app/o/{org.slug}
                     </Typography>
                   </Box>
                 </Stack>
@@ -140,12 +139,12 @@ export default function PublicOrgPage() {
                     Run your own challenges
                   </Typography>
                   <Typography sx={{ fontSize: 13.5, color: c.inkMuted, lineHeight: 1.6 }}>
-                    <Num>{org.memberCount}</Num> people organize on Forge here. Creating an
+                    <Num>{org.memberCount}</Num> people organize on Podium here. Creating an
                     organization takes about a minute.
                   </Typography>
                 </Box>
-                <Button component={Link} to="/welcome" variant="contained" sx={{ flex: 'none' }}>
-                  Get started
+                <Button component={Link} to="/org/new" variant="contained" sx={{ flex: 'none' }}>
+                  Create organization
                 </Button>
               </Stack>
             </>

@@ -107,23 +107,23 @@ describe('admin key', () => {
     vi.stubGlobal('window', { sessionStorage: fakeStorage() });
   });
 
-  it('defaults to FORGE2026 when VITE_ADMIN_SECRET is unset', async () => {
+  it('defaults to PODIUM2026 when VITE_ADMIN_SECRET is unset', async () => {
     const { adminKey } = await import('./adminKey');
-    expect(adminKey()).toBe('FORGE2026');
+    expect(adminKey()).toBe('PODIUM2026');
   });
 
   it('accepts the key and rejects everything else', async () => {
     const { verifyAdminKey } = await import('./adminKey');
-    expect(verifyAdminKey('FORGE2026')).toBe(true);
+    expect(verifyAdminKey('PODIUM2026')).toBe(true);
     expect(verifyAdminKey('FORGE2025')).toBe(false);
-    expect(verifyAdminKey('forge2026')).toBe(false); // case matters
-    expect(verifyAdminKey('FORGE2026 extra')).toBe(false);
+    expect(verifyAdminKey('podium2026')).toBe(false); // case matters
+    expect(verifyAdminKey('PODIUM2026 extra')).toBe(false);
     expect(verifyAdminKey('')).toBe(false);
   });
 
   it('tolerates the whitespace a paste brings with it', async () => {
     const { verifyAdminKey } = await import('./adminKey');
-    expect(verifyAdminKey('  FORGE2026\n')).toBe(true);
+    expect(verifyAdminKey('  PODIUM2026\n')).toBe(true);
   });
 
   it('is locked until an unlock is recorded', async () => {
@@ -165,9 +165,9 @@ describe('admin key', () => {
 
   it('treats a hand-edited or unparseable record as locked', async () => {
     const { isUnlocked } = await import('./adminKey');
-    window.sessionStorage.setItem('forge.admin.unlock', 'not json');
+    window.sessionStorage.setItem('podium.admin.unlock', 'not json');
     expect(isUnlocked('u_admin')).toBe(false);
-    window.sessionStorage.setItem('forge.admin.unlock', JSON.stringify({ until: 'soon' }));
+    window.sessionStorage.setItem('podium.admin.unlock', JSON.stringify({ until: 'soon' }));
     expect(isUnlocked('u_admin')).toBe(false);
   });
 

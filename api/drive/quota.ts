@@ -12,7 +12,7 @@ import { driveConfig, accessToken, DriveError } from '../_lib/drive';
  *
  * This exists so the admin panel can say "you are at 89%" a week earlier.
  *
- * Reports **the whole account**, not what Forge uploaded — Drive quota is
+ * Reports **the whole account**, not what Podium uploaded — Drive quota is
  * account-wide, so a full Drive stops uploads regardless of what filled it, and
  * a number scoped to our own files would be reassuring and useless.
  */

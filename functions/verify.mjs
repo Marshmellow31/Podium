@@ -171,7 +171,7 @@ async function main() {
  *
  * The receiver runs in this process on 127.0.0.1 and recomputes the HMAC from
  * the secret in Firestore, so this asserts the thing that actually matters: that
- * a receiver holding the shared secret can *verify* what Forge sends. An
+ * a receiver holding the shared secret can *verify* what Podium sends. An
  * unsigned or wrongly signed webhook is one anybody can forge, which is the
  * whole reason this function has to live on a server.
  */
@@ -268,10 +268,10 @@ async function verifyWebhook() {
     );
     check('only the active, event-matching hook fired', received.length === 1, `${received.length} received`);
     check('the receiver got the event name in a header',
-      delivered.headers['x-forge-event'] === 'submission.created', delivered.headers['x-forge-event']);
+      delivered.headers['x-podium-event'] === 'submission.created', delivered.headers['x-podium-event']);
 
-    const sig = delivered.headers['x-forge-signature'];
-    const ts = delivered.headers['x-forge-timestamp'];
+    const sig = delivered.headers['x-podium-signature'];
+    const ts = delivered.headers['x-podium-timestamp'];
     const expected = `sha256=${createHmac('sha256', SECRET).update(`${ts}.${delivered.body}`).digest('hex')}`;
     check('the signature verifies against the stored secret', sig === expected, `${sig} vs ${expected}`);
     check('the signature covers a timestamp, so a captured request cannot be replayed',

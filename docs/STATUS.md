@@ -52,7 +52,7 @@ cached challenge query, capped card rendering, and lazy cover images.
 panel and reopened the front door (ADR-025). Google sign-in and a guest session
 are back beside email and password on `/signin`, split across a **member** door
 and an **admin** door — the admin door takes email, password and the access key
-(`FORGE2026`) in one step, and checks the key before it touches the network.
+(`PODIUM2026`) in one step, and checks the key before it touches the network.
 `/admin/participants` is new and is the screen the panel was missing: every
 registration in the organization in one table, searchable, with status,
 check-in, membership and deletion controls, each disabled with its reason when
@@ -63,7 +63,7 @@ slots, one required).
 
 **Verified end to end against the emulator suite**, not just typechecked: seed →
 curate → sign up → enter the competition → submit two real photo URLs → sign in
-through the admin door with `FORGE2026` → the entry appears in the console →
+through the admin door with `PODIUM2026` → the entry appears in the console →
 check-in and a status change both write and read back. Two real bugs were found
 that way and fixed — the roster's flexible name column collapsed to zero width
 (the fixed columns summed past `minWidth`), and check-in from the console wrote
@@ -172,9 +172,9 @@ wrong instead of failing silently.
 
 ### Earlier still
 
-The demo runs end to end and now wears the **Forge design system** — a Material
+The demo runs end to end and now wears the **Podium design system** — a Material
 Design 3 "expressive" warm-amber scheme imported from the Agent Design project
-`Forge.dc.html`. Colour, radius, elevation and motion live in `app/tokens.ts`;
+`Podium.dc.html`. Colour, radius, elevation and motion live in `app/tokens.ts`;
 `app/theme.ts` derives the MUI theme from them. The three old shells were
 collapsed into one `AppShell` (sidebar on desktop, bottom nav + FAB on mobile)
 per the design — see ADR-015. Fourteen screens are restyled and two new ones
@@ -232,7 +232,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocked/br
 - [x] `modules/forms/FormRenderer.tsx` — JSON → live validated form
 - [x] `modules/forms/FormBuilder.tsx` — palette / canvas / config, live preview
 
-**Design system** (imported from `Forge.dc.html`, ADR-015)
+**Design system** (imported from `Podium.dc.html`, ADR-015)
 - [x] `app/tokens.ts` — colour, radius, elevation, motion, cover + status maps.
       **The only place a hex may be written.**
 - [x] `app/theme.ts` — MUI theme derived from tokens (M3 filled fields, pill
@@ -468,7 +468,7 @@ React counterpart to the pure `core/forms`).
 Webhooks, a public REST API, enterprise SSO, Slack/Discord delivery and AI
 review all need a server to hold a secret or receive an inbound request. Spark
 has no Cloud Functions, so none of them can exist client-side. Webhooks are the
-clearest case: the signature that proves a request came from Forge needs a
+clearest case: the signature that proves a request came from Podium needs a
 secret the browser cannot hold, and an *unsigned* webhook is one anybody can
 forge — worse than none.
 
@@ -493,7 +493,7 @@ while waiting for billing.
 untestable. The emulator runs on the local machine, so the suite stands up a real
 HTTP receiver on `127.0.0.1`, dispatches to it, and **recomputes the HMAC from
 the secret in Firestore** — asserting the thing that actually matters: a receiver
-holding the shared secret can verify what Forge sends. Also asserted: an
+holding the shared secret can verify what Podium sends. Also asserted: an
 unauthenticated call is refused (401); a member *with* an org membership but
 *without* `integration.manage` is refused and delivers nothing; inactive hooks
 and hooks for other events do not fire; the signature covers a timestamp so a
@@ -568,7 +568,7 @@ app. It is now a link to `/o/{slug}`.
      Firebase sends you → "I want to run challenges" → "Create an organization".
      You become its owner with every permission, immediately. No seed, no
      service-account key. The admin console is then at `/admin`, key
-     `VITE_ADMIN_SECRET` (default `forge2026` — change it per deployment).
+     `VITE_ADMIN_SECRET` (default `podium2026` — change it per deployment).
      **Email/Password must be enabled** under Firebase console →
      Authentication → Sign-in method, or every attempt returns
      `auth/configuration-not-found`; the sign-in screen explains that in full.
@@ -598,7 +598,7 @@ app. It is now a link to `/o/{slug}`.
 | Q5 | Teams in MVP or Phase 2? | Registration shape | Phase 2; `Registration.team` exists from day one so no migration |
 | Q6 | White-label / custom domains timing | Hosting + branding | Phase 3 |
 | **Q7** | **Keep `useFormEngine`, or move to React Hook Form as CONVENTIONS §6 mandates?** | The demo deviates from the documented stack — see ADR-013 | Revisit before the backend lands; do not build more forms on it until decided |
-| **Q8** | **Is the product called ChallengeOS or Forge?** | The running app, the `<title>`, the repo directory and the imported design system all say **Forge**; every doc (README, BRAIN, AGENT) says **ChallengeOS**. Both names are currently shipping. | Unresolved — **not renamed unilaterally.** Pick one, then sweep the docs or the UI to match |
+| **Q8** | **Is the product called Podium or Podium?** | The running app, the `<title>`, the repo directory and the imported design system all say **Podium**; every doc (README, BRAIN, AGENT) says **Podium**. Both names are currently shipping. | Unresolved — **not renamed unilaterally.** Pick one, then sweep the docs or the UI to match |
 
 ## 5. Known risks
 

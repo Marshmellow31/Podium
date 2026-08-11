@@ -303,8 +303,8 @@ and form-control baseline.
 ## ADR-015 — One application shell, and design tokens are the single source of colour
 **Date:** 2026-07-29 · **Status:** Accepted
 
-**Context.** The Forge design system (Agent Design project "Material Design 3
-SaaS UI", `Forge.dc.html`) was imported and implemented. It specifies a single
+**Context.** The Podium design system (Agent Design project "Material Design 3
+SaaS UI", `Podium.dc.html`) was imported and implemented. It specifies a single
 shell — a persistent sidebar on desktop with two nav groups ("For you" and
 "Organizing"), a bottom navigation bar plus FAB on mobile — covering all twelve
 screens. The app had three shells (`AdminLayout`, `ParticipantLayout`,
@@ -803,7 +803,7 @@ their own entry and useless for the administrator who sets them.
   permissive: an attachment field may legitimately point at a folder, and
   narrowing it globally would retroactively invalidate submissions already made
   against those fields.
-* `VITE_ADMIN_SECRET` defaults to `FORGE2026`. It ships in the bundle and
+* `VITE_ADMIN_SECRET` defaults to `PODIUM2026`. It ships in the bundle and
   everything ADR-024 said about it being a gate and not a lock is unchanged.
 
 ---
@@ -865,7 +865,7 @@ the point of the whole exercise — it removes the step entrants forget.
 * ID tokens are verified in `api/_lib/auth.ts` by hand against Google's public
   certs rather than with `firebase-admin` — 10 MB of dependency for one RS256
   check would dominate the cold start on the request a person is waiting on.
-* **Known gap:** the endpoint verifies the caller is a signed-in Forge user but
+* **Known gap:** the endpoint verifies the caller is a signed-in Podium user but
   *not* that they are registered for the challenge. That needs a Firestore read,
   which needs the Admin SDK and a second long-lived credential in the serverless
   environment. The exposure is a signed-in user uploading to a challenge they

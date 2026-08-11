@@ -96,7 +96,19 @@ export default function Discover() {
         })}
       </Stack>
 
-      <QueryBoundary isLoading={isLoading} error={error} skeletonHeight={260} skeletonRows={2}>
+      <QueryBoundary
+        isLoading={isLoading}
+        error={error}
+        skeletonHeight={260}
+        skeletonRows={2}
+        errorFallback={(
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+          />
+        )}
+      >
       {results.length === 0 ? (
         <EmptyState
           icon="travel_explore"

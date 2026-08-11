@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import { MotionConfig } from 'motion/react';
 import { theme } from './theme';
 import { AppProviders } from './providers/AppProviders';
 import { validateEnv } from '@config/env';
@@ -23,9 +24,11 @@ function boot() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppProviders>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <MotionConfig reducedMotion="user">
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </MotionConfig>
         </AppProviders>
       </ThemeProvider>
     </StrictMode>,
@@ -36,7 +39,7 @@ try {
   boot();
 } catch (err) {
   el.innerHTML = `
-    <div style="font-family:Manrope,system-ui,sans-serif;background:#FFF8E1;color:#121212;
+    <div style="font-family:Manrope,system-ui,sans-serif;background:#FDF8EC;color:#1D1B13;
                 min-height:100vh;display:grid;place-items:center;padding:24px">
       <div style="max-width:560px">
         <h1 style="font-size:24px;margin:0 0 12px">Configuration error</h1>

@@ -1,4 +1,4 @@
-# Deploying Forge
+# Deploying Podium
 
 ## Required configuration
 

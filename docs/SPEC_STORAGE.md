@@ -110,7 +110,7 @@ Browser                        Cloud Function                    Google Drive
 ### Folder layout in the customer's Drive
 
 ```
-ChallengeOS/
+Podium/
 └── {Organization Name}/
     └── {Challenge Title} [{challengeId-short}]/
         ├── registrations/

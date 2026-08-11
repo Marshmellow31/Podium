@@ -327,7 +327,7 @@ export default function ChallengeEditor() {
               fullWidth
               value={draft.slug}
               onChange={(e) => set('slug', slugify(e.target.value))}
-              helperText={`forge.app/c/${draft.slug || '…'}`}
+              helperText={`podium.app/c/${draft.slug || '…'}`}
               error={takenSlugs.includes(draft.slug)}
             />
             <Tooltip title="Regenerate from the title. Only do this before sharing the link.">
@@ -600,7 +600,7 @@ export default function ChallengeEditor() {
             label="Prize" fullWidth value={draft.prize}
             onChange={(e) => set('prize', e.target.value)}
             placeholder="₹25,000 and a feature on the community page"
-            helperText="Recorded and displayed. Forge never disburses money."
+            helperText="Recorded and displayed. Podium never disburses money."
           />
 
           <Divider />

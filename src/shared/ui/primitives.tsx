@@ -1,37 +1,31 @@
 import type { ReactNode, CSSProperties } from 'react';
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from './Icon';
 import { c, radius, shadow, ease, mono, pillFor } from '@shared/design/tokens';
+import { popMotion, quickSpring, softSpring, spring, surfaceMotion } from './motion';
 
 /* ------------------------------------------------------------------ *
- * Shared visual language, imported from the Forge design system.
+ * Shared visual language, imported from the Podium design system.
  * Every component here mirrors a block in the design source; the
  * comment above each one names it.
  * ------------------------------------------------------------------ */
 
-/** Organic background shapes. The design calls these "blobs". Purely decorative. */
+/** Organic background shapes from the original Podium interface. */
 export function Blobs({ variant = 'hero' }: { variant?: 'hero' | 'empty' | 'detail' }) {
   const sets: Record<string, CSSProperties[]> = {
     hero: [
-      { width: 340, height: 320, right: -90, top: -120, background: c.primary, opacity: 0.85, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%', animation: 'floaty 14s ease-in-out infinite' },
-      { width: 220, height: 210, right: 120, bottom: -110, background: c.success, opacity: 0.75, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%', animation: 'floaty 18s ease-in-out infinite reverse' },
-      { width: 130, height: 130, left: -50, bottom: -60, background: c.surfaceCard, opacity: 0.6, borderRadius: '50% 50% 45% 55%/55% 45% 55% 45%' },
+      { width: 340, height: 320, right: -90, top: -120, background: c.primary, opacity: .85, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%', animation: 'floaty 14s ease-in-out infinite' },
+      { width: 220, height: 210, right: 120, bottom: -110, background: c.success, opacity: .75, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%', animation: 'floaty 18s ease-in-out infinite reverse' },
+      { width: 130, height: 130, left: -50, bottom: -60, background: c.surfaceCard, opacity: .6, borderRadius: '50% 50% 45% 55%/55% 45% 55% 45%' },
     ],
     empty: [
-      { width: 260, height: 240, left: -80, top: -90, background: c.primaryContainer, opacity: 0.8, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' },
-      { width: 180, height: 170, right: -60, bottom: -70, background: c.success, opacity: 0.7, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%' },
+      { width: 260, height: 240, left: -80, top: -90, background: c.primaryContainer, opacity: .8, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' },
+      { width: 180, height: 170, right: -60, bottom: -70, background: c.success, opacity: .7, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%' },
     ],
-    detail: [
-      { width: 320, height: 300, right: -90, top: -110, background: 'rgba(255,255,255,.32)', borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' },
-    ],
+    detail: [{ width: 320, height: 300, right: -90, top: -110, background: 'rgba(255,255,255,.32)', borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' }],
   };
-  return (
-    <>
-      {sets[variant]!.map((s, i) => (
-        <Box key={i} sx={{ position: 'absolute', pointerEvents: 'none', ...s }} />
-      ))}
-    </>
-  );
+  return <>{sets[variant]!.map((s, i) => <Box key={i} sx={{ position: 'absolute', pointerEvents: 'none', ...s }} />)}</>;
 }
 
 /** The large rounded banner at the top of Home, Awards and challenge detail. */
@@ -46,6 +40,11 @@ export function Hero({
 }) {
   return (
     <Box
+      component={motion.section}
+      variants={surfaceMotion}
+      initial="initial"
+      animate="animate"
+      transition={softSpring}
       sx={{
         position: 'relative',
         overflow: 'hidden',
@@ -64,7 +63,14 @@ export function Hero({
 /** Page heading — the design's h1 with its display sizing. */
 export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
   return (
-    <Box sx={{ mb: sub ? 3 : 2 }}>
+    <Box
+      component={motion.div}
+      variants={surfaceMotion}
+      initial="initial"
+      animate="animate"
+      transition={spring}
+      sx={{ mb: sub ? 3 : 2 }}
+    >
       <Typography variant="h2" sx={{ fontSize: { xs: 30, md: 44 } }}>
         {children}
       </Typography>
@@ -115,13 +121,18 @@ export function StatTile({
 
   return (
     <Box
+      component={motion.div}
+      variants={surfaceMotion}
+      initial="initial"
+      animate="animate"
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.985 }}
+      transition={quickSpring}
       sx={{
         borderRadius: `${radius.tile}px`,
         p: 2.5,
         background: fills.bg,
         border: `1px solid ${fills.border}`,
-        transition: `transform 200ms ${ease}`,
-        '&:hover': { transform: 'translateY(-2px)' },
       }}
     >
       {icon ? (
@@ -219,13 +230,19 @@ export function ProgressBar({
         </Stack>
       )}
       <Box sx={{ height: 8, borderRadius: '4px', background: track, overflow: 'hidden' }}>
-        <Box sx={{ height: '100%', borderRadius: '4px', background: color, width: `${pct}%`, transition: `width 400ms ${ease}` }} />
+        <Box
+          component={motion.div}
+          initial={false}
+          animate={{ width: `${pct}%` }}
+          transition={spring}
+          sx={{ height: '100%', borderRadius: '4px', background: color }}
+        />
       </Box>
     </Box>
   );
 }
 
-/** Full-bleed empty state on a container surface, with decorative blobs. */
+/** Full-bleed empty state on a container surface. */
 export function EmptyState({
   icon,
   title,
@@ -239,6 +256,11 @@ export function EmptyState({
 }) {
   return (
     <Box
+      component={motion.div}
+      variants={popMotion}
+      initial="initial"
+      animate="animate"
+      transition={softSpring}
       sx={{
         position: 'relative',
         overflow: 'hidden',
@@ -399,7 +421,16 @@ export function ListSkeleton({ rows = 5, height = 96 }: { rows?: number; height?
   return (
     <Stack spacing={1.5}>
       {Array.from({ length: rows }, (_, i) => (
-        <Box key={i} className="shimmer" sx={{ height, borderRadius: `${radius.card}px` }} />
+        <Box
+          key={i}
+          component={motion.div}
+          className="shimmer"
+          variants={surfaceMotion}
+          initial="initial"
+          animate="animate"
+          transition={{ ...softSpring, delay: i * 0.045 }}
+          sx={{ height, borderRadius: `${radius.card}px` }}
+        />
       ))}
     </Stack>
   );

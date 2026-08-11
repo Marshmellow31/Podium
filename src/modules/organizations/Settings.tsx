@@ -340,7 +340,7 @@ export default function Settings() {
             <TextField
               autoFocus fullWidth label="URL" sx={{ mt: 1, mb: 2 }}
               value={hook?.url ?? ''}
-              placeholder="https://example.com/hooks/forge"
+              placeholder="https://example.com/hooks/podium"
               onChange={(e) => setHook((h) => h && { ...h, url: e.target.value })}
               helperText="Must be https. A signing secret is generated for you — people choose guessable ones."
             />
