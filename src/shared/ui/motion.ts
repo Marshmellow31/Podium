@@ -19,3 +19,8 @@ export const popMotion: Variants = {
   initial: { opacity: 0, scale: 0.94 },
   animate: { opacity: 1, scale: 1 },
 };
+
+export const successPopMotion: Variants = {
+  initial: { opacity: 0, scale: 0.72, rotate: -8 },
+  animate: { opacity: 1, scale: 1, rotate: 0 },
+};

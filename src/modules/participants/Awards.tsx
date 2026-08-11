@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Box, Button, Stack, Typography } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { Hero, Tag, Num, liftSx } from '@shared/ui/primitives';
 import { c, radius } from '@shared/design/tokens';
@@ -28,7 +29,12 @@ export default function Awards() {
   return (
     <>
       <Hero bg={c.success} blobs={false}>
-        <Box sx={{ position: 'absolute', width: 300, height: 280, right: -90, bottom: -120, background: c.primaryContainer, opacity: .9, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%', animation: 'floaty 16s ease-in-out infinite' }} />
+        <Box
+          component={motion.div}
+          animate={{ x: [0, 10, 0], y: [0, -14, 0], rotate: [0, 2, 0] }}
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+          sx={{ position: 'absolute', width: 300, height: 280, right: -90, bottom: -120, background: c.primaryContainer, opacity: .9, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' }}
+        />
         <Box sx={{ position: 'relative' }}>
           <Typography variant="h1" sx={{ fontSize: { xs: 32, md: 52 }, color: c.onSuccess, mb: 1.25 }}>
             {earned.length} badges.

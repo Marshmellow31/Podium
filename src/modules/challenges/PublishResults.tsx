@@ -4,6 +4,7 @@ import {
   Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
   FormControlLabel, IconButton, Stack, Typography,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import {
@@ -17,6 +18,7 @@ import { usePublishResults } from '@core/firebase/mutations';
 import { useAuth, usePermissions } from '@core/auth';
 import { aggregateSubmission, rankCohort, awardFor } from '@core/judging/aggregate';
 import { c, radius } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /**
  * S-60 — Publish results. SPEC_SCORING §5, ROADMAP 1.15.
@@ -289,7 +291,14 @@ export default function PublishResults() {
       <Dialog open={awarded !== null} onClose={() => setAwarded(null)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="emoji_events" size={40} fill color={c.successInk} />
             </Box>
           </Box>

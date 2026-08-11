@@ -4,6 +4,7 @@ import {
   Accordion, AccordionDetails, AccordionSummary, Box, Button, Dialog, DialogActions,
   DialogContent, Stack, Typography, CircularProgress,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { useChallengeBySlug, usePublishedFormSchemas } from '@core/firebase/hooks';
 import { useSubmitRegistration } from '@core/firebase/mutations';
@@ -15,6 +16,7 @@ import { UploadProvider } from '@shared/ui/forms/UploadContext';
 import { stripHiddenAnswers } from '@core/forms/conditions';
 import { EmptyState, Tag, ListSkeleton } from '@shared/ui/primitives';
 import { c, radius, mono } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /** S-54 — Registration form, rendered entirely from a stored schema. */
 export default function RegisterScreen() {
@@ -89,7 +91,13 @@ export default function RegisterScreen() {
       </Stack>
 
       <Box sx={{ height: 6, borderRadius: '3px', background: c.track, overflow: 'hidden', mb: 4 }}>
-        <Box sx={{ height: '100%', width: `${engine.percent}%`, background: c.accent, transition: 'width 300ms cubic-bezier(.2,0,0,1)' }} />
+        <Box
+          component={motion.div}
+          initial={false}
+          animate={{ width: `${engine.percent}%` }}
+          transition={quickSpring}
+          sx={{ height: '100%', background: c.accent }}
+        />
       </Box>
 
       <Stack direction="row" gap={1.75} sx={{ p: 2.25, borderRadius: `${radius.tile}px`, background: c.surfaceContainer, mb: 3 }}>
@@ -189,7 +197,14 @@ export default function RegisterScreen() {
       <Dialog open={done} onClose={() => setDone(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>

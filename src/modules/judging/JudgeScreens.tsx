@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, Slider, Stack, TextField, Typography,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { useChallenges, useSubmissions, useRubric, useChallengeSnapshot } from '@core/firebase/hooks';
 import { useSubmitReview } from '@core/firebase/mutations';
@@ -11,6 +12,7 @@ import { NotSignedInError } from '@core/sync';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { PageTitle, EmptyState, StatTile, Num, Tag, liftSx, ListSkeleton } from '@shared/ui/primitives';
 import { c, radius, coverFor, mono } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /**
  * The judged challenge for this demo: the first one actually in judging.
@@ -77,7 +79,13 @@ export function JudgeQueue() {
             {done} of {submissions.length} reviewed · 3 days left
           </Typography>
           <Box sx={{ height: 8, borderRadius: '4px', background: 'rgba(36,26,0,.14)', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${pct}%`, borderRadius: '4px', background: c.inverse }} />
+            <Box
+              component={motion.div}
+              initial={false}
+              animate={{ width: `${pct}%` }}
+              transition={quickSpring}
+              sx={{ height: '100%', borderRadius: '4px', background: c.inverse }}
+            />
           </Box>
         </Box>
         {next && (
@@ -366,7 +374,14 @@ export function ScoringScreen() {
       <Dialog open={submitted} onClose={() => setSubmitted(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>

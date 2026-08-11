@@ -15,8 +15,8 @@ import { popMotion, quickSpring, softSpring, spring, surfaceMotion } from './mot
 export function Blobs({ variant = 'hero' }: { variant?: 'hero' | 'empty' | 'detail' }) {
   const sets: Record<string, CSSProperties[]> = {
     hero: [
-      { width: 340, height: 320, right: -90, top: -120, background: c.primary, opacity: .85, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%', animation: 'floaty 14s ease-in-out infinite' },
-      { width: 220, height: 210, right: 120, bottom: -110, background: c.success, opacity: .75, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%', animation: 'floaty 18s ease-in-out infinite reverse' },
+      { width: 340, height: 320, right: -90, top: -120, background: c.primary, opacity: .85, borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' },
+      { width: 220, height: 210, right: 120, bottom: -110, background: c.success, opacity: .75, borderRadius: '60% 40% 45% 55%/50% 60% 40% 50%' },
       { width: 130, height: 130, left: -50, bottom: -60, background: c.surfaceCard, opacity: .6, borderRadius: '50% 50% 45% 55%/55% 45% 55% 45%' },
     ],
     empty: [
@@ -25,7 +25,19 @@ export function Blobs({ variant = 'hero' }: { variant?: 'hero' | 'empty' | 'deta
     ],
     detail: [{ width: 320, height: 300, right: -90, top: -110, background: 'rgba(255,255,255,.32)', borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' }],
   };
-  return <>{sets[variant]!.map((s, i) => <Box key={i} sx={{ position: 'absolute', pointerEvents: 'none', ...s }} />)}</>;
+  return (
+    <>
+      {sets[variant]!.map((s, i) => (
+        <Box
+          key={i}
+          component={motion.div}
+          animate={i < 2 ? { x: [0, 10, 0], y: [0, -12, 0], rotate: [0, i === 0 ? 2 : -2, 0] } : undefined}
+          transition={i < 2 ? { duration: i === 0 ? 14 : 18, repeat: Infinity, ease: 'easeInOut' } : undefined}
+          sx={{ position: 'absolute', pointerEvents: 'none', ...s }}
+        />
+      ))}
+    </>
+  );
 }
 
 /** The large rounded banner at the top of Home, Awards and challenge detail. */
