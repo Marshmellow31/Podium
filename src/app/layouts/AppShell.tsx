@@ -273,11 +273,16 @@ export default function AppShell() {
           component="header"
           sx={{ position: 'sticky', top: 0, zIndex: 40, background: c.surface, borderBottom: `1px solid ${c.outline}` }}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={2}
-            sx={{ width: '100%', px: { xs: 2.5, md: 4 }, height: 72 }}
+          <Box
+            sx={{
+              width: '100%',
+              px: { xs: 2.5, md: 4 },
+              height: 72,
+              display: { xs: 'flex', md: 'grid' },
+              gridTemplateColumns: { md: 'minmax(280px, 640px) minmax(0, 1fr) auto' },
+              alignItems: 'center',
+              gap: 2,
+            }}
           >
             {!isDesktop && (
               <Stack direction="row" alignItems="center" spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
@@ -293,9 +298,8 @@ export default function AppShell() {
                 alignItems="center"
                 spacing={1.5}
                 sx={{
-                  flex: '1 1 560px',
-                  maxWidth: 640,
-                  minWidth: 280,
+                  gridColumn: { md: '1' },
+                  width: '100%',
                   height: 48,
                   px: 2,
                   borderRadius: `${radius.field}px`,
@@ -318,7 +322,12 @@ export default function AppShell() {
               </Stack>
             )}
             {!isDesktop && <Box sx={{ flex: 'none' }} />}
-            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 'none', ml: 'auto' }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={0.5}
+              sx={{ flex: 'none', ml: { xs: 'auto', md: 0 }, gridColumn: { md: '3' }, justifySelf: { md: 'end' } }}
+            >
               <Tooltip title="Install help">
                 <IconButton
                   aria-label="Show install instructions"
@@ -347,7 +356,7 @@ export default function AppShell() {
                 </Box>
               </Tooltip>
             </Stack>
-          </Stack>
+          </Box>
           <Popover
             open={installHelpOpen}
             anchorEl={installHelpAnchor}
