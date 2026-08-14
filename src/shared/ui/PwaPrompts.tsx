@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Snackbar, Stack, Typography } from '@mui/material';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { Icon } from './Icon';
+import { PodiumMark } from './PodiumMark';
 import { c, radius, shadow } from '@shared/design/tokens';
 
 /**
@@ -18,7 +19,7 @@ import { c, radius, shadow } from '@shared/design/tokens';
  * install prompt becomes the thing people reflexively close.
  */
 
-const DISMISSED_KEY = 'forge.installPrompt.dismissed';
+const DISMISSED_KEY = 'podium.installPrompt.dismissed';
 
 export function PwaPrompts() {
   const {
@@ -77,7 +78,7 @@ export function PwaPrompts() {
           }}
         >
           <Icon name="rocket_launch" size={20} />
-          <Typography sx={{ fontSize: 14 }}>A new version of Forge is ready.</Typography>
+          <Typography sx={{ fontSize: 14 }}>A new version of Podium is ready.</Typography>
           <Button
             size="small"
             sx={{ color: c.primary, fontWeight: 700 }}
@@ -101,20 +102,12 @@ export function PwaPrompts() {
             background: c.surfaceCard, border: `1px solid ${c.outline}`, boxShadow: shadow.card,
           }}
           role="dialog"
-          aria-label="Install Forge"
+          aria-label="Install Podium"
         >
           <Stack direction="row" gap={1.75} alignItems="flex-start">
-            <Box
-              sx={{
-                width: 40, height: 40, flex: 'none', borderRadius: '12px',
-                background: c.inverse, color: c.primary,
-                display: 'grid', placeItems: 'center', fontSize: 20, fontWeight: 800,
-              }}
-            >
-              F
-            </Box>
+            <PodiumMark size={40} radius={12} />
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontSize: 15, fontWeight: 700, mb: 0.25 }}>Install Forge</Typography>
+              <Typography sx={{ fontSize: 15, fontWeight: 700, mb: 0.25 }}>Install Podium</Typography>
               <Typography sx={{ fontSize: 13, color: c.inkMuted, lineHeight: 1.5, mb: 1.5 }}>
                 Add it to your home screen for full-screen access and faster launches.
               </Typography>

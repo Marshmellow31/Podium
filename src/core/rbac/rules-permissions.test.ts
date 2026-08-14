@@ -80,9 +80,9 @@ describe('firestore.rules ↔ permission catalog', () => {
     expect(rulesSource).toMatch(/onlyChanges\(\['counters', 'updatedAt'\]\)/);
   });
 
-  it('flags the ADR-016 demo scaffolding so its removal is not forgotten', () => {
-    // When this fails because the predicates are gone, delete the test — that
-    // is the intended end state, and the failure is the reminder.
-    expect(rulesSource).toContain('function isDemoOrg(orgId)');
+  it('keeps public access visibility-based with no special tenant', () => {
+    expect(rulesSource).not.toContain('function isDemoOrg(orgId)');
+    expect(rulesSource).not.toContain('publicBrowse(orgId)');
+    expect(rulesSource).toContain("resource.data.visibility == 'public'");
   });
 });

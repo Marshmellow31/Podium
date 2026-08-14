@@ -97,7 +97,7 @@ export default function Analytics() {
               <Box sx={panelSx}>
                 <Eyebrow>Entry → submission</Eyebrow>
                 <Stack direction="row" alignItems="baseline" gap={1} sx={{ mt: 1.5, mb: 2 }}>
-                  <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1 }}>
+                  <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
                     {stats.conversion}%
                   </Typography>
                   <Typography sx={{ fontSize: 14, color: c.inkMuted }}>
@@ -114,7 +114,7 @@ export default function Analytics() {
               <Box sx={panelSx}>
                 <Eyebrow>Judging progress</Eyebrow>
                 <Stack direction="row" alignItems="baseline" gap={1} sx={{ mt: 1.5, mb: 2 }}>
-                  <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1 }}>
+                  <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
                     {stats.reviewProgress}%
                   </Typography>
                   <Typography sx={{ fontSize: 14, color: c.inkMuted }}>

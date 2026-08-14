@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Box, Button, Dialog, DialogActions, DialogContent, Slider, Stack, TextField, Typography,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { useChallenges, useSubmissions, useRubric, useChallengeSnapshot } from '@core/firebase/hooks';
 import { useSubmitReview } from '@core/firebase/mutations';
@@ -11,6 +12,7 @@ import { NotSignedInError } from '@core/sync';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { PageTitle, EmptyState, StatTile, Num, Tag, liftSx, ListSkeleton } from '@shared/ui/primitives';
 import { c, radius, coverFor, mono } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /**
  * The judged challenge for this demo: the first one actually in judging.
@@ -77,7 +79,13 @@ export function JudgeQueue() {
             {done} of {submissions.length} reviewed · 3 days left
           </Typography>
           <Box sx={{ height: 8, borderRadius: '4px', background: 'rgba(36,26,0,.14)', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${pct}%`, borderRadius: '4px', background: c.inverse }} />
+            <Box
+              component={motion.div}
+              initial={false}
+              animate={{ width: `${pct}%` }}
+              transition={quickSpring}
+              sx={{ height: '100%', borderRadius: '4px', background: c.inverse }}
+            />
           </Box>
         </Box>
         {next && (
@@ -123,7 +131,7 @@ export function JudgeQueue() {
                 <Icon name="image" size={34} color="rgba(36,26,0,.4)" />
                 <Box
                   component="span"
-                  sx={{ position: 'absolute', top: 12, left: 12, fontFamily: mono, fontSize: 11, background: 'rgba(255,253,246,.86)', px: 1, py: 0.5, borderRadius: '8px' }}
+                  sx={{ position: 'absolute', top: 12, left: 12, fontFamily: mono, fontSize: 11, background: 'rgba(250,250,250,.9)', px: 1, py: 0.5, borderRadius: '8px' }}
                 >
                   {labelFor(s, blind)}
                 </Box>
@@ -211,7 +219,7 @@ export function ScoringScreen() {
           <Typography sx={{ fontSize: 12, color: c.inkFaint }}>
             {blind ? 'Blind review' : 'Review'}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             {labelFor(sub, blind)}
           </Typography>
         </Box>
@@ -232,7 +240,7 @@ export function ScoringScreen() {
             <Box sx={{ fontFamily: mono, fontSize: 12, color: c.inkFaint, mb: 1 }}>
               {labelFor(sub, blind)} · shot on {String(sub.answers.shot_on ?? '—')}
             </Box>
-            <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
               {String(sub.answers.title ?? 'Untitled')}
             </Typography>
             <Typography sx={{ fontSize: 14, lineHeight: 1.6, color: c.inkMuted, mb: 2.5 }}>
@@ -286,7 +294,7 @@ export function ScoringScreen() {
             sx={{ borderRadius: `${radius.tile}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, p: '18px 20px', mb: 2.5 }}
           >
             <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Weighted total</Typography>
-            <Box sx={{ fontFamily: mono, fontSize: 26, fontWeight: 700, letterSpacing: '-.02em', color: complete ? c.ink : c.inkFaint }}>
+            <Box sx={{ fontFamily: mono, fontSize: 26, fontWeight: 700, letterSpacing: 0, color: complete ? c.ink : c.inkFaint }}>
               {complete ? weighted.toFixed(1) : '—'}
             </Box>
           </Stack>
@@ -349,7 +357,7 @@ export function ScoringScreen() {
       <Dialog open={recuse} onClose={() => setRecuse(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ p: 3.5 }}>
           <Icon name="front_hand" size={26} color={c.primaryIcon} style={{ display: 'block', marginBottom: 12 }} />
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Recuse yourself
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2.5 }}>
@@ -366,11 +374,18 @@ export function ScoringScreen() {
       <Dialog open={submitted} onClose={() => setSubmitted(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Score recorded
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

@@ -165,6 +165,15 @@ export interface ChallengeDoc extends BaseDoc {
     resultsAt: Timestamp | null;
   };
   leaderboardMode: 'hidden' | 'live' | 'afterClose' | 'topN' | 'public';
+  /**
+   * Optional competition grouping. Challenges in the same series keep their own
+   * leaderboard, while a server-side aggregate can roll contributing challenges
+   * into one semester/club/program leaderboard.
+   */
+  seriesId?: string | null;
+  seriesName?: string | null;
+  seriesLeaderboardEnabled?: boolean;
+  seriesPointsWeight?: number;
   prize: string;
   /** SPEC_SCORING blind judging. Absent reads as false. */
   blindJudging?: boolean;

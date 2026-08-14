@@ -1,5 +1,5 @@
 /**
- * One-time: grants Forge permission to upload into your Google Drive folder.
+ * One-time: grants Podium permission to upload into your Google Drive folder.
  *
  *   npm run drive:connect
  *
@@ -13,7 +13,7 @@
  * Scope `drive.file`: per-file access, limited to files this app itself
  * creates. It cannot read, list or touch anything else in your Drive. That is
  * why the consent screen is not asking for a restricted scope, and why a leaked
- * token is bounded to files Forge made rather than to your whole account.
+ * token is bounded to files Podium made rather than to your whole account.
  *
  * ## Prerequisites, in the Google Cloud Console for this project
  *
@@ -73,7 +73,7 @@ function waitForCode(expectedState: string): Promise<string> {
 
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
       res.end(
-        `<!doctype html><meta charset="utf-8"><title>Forge</title>`
+        `<!doctype html><meta charset="utf-8"><title>Podium</title>`
         + `<body style="font:16px/1.6 system-ui;padding:3rem;max-width:32rem;margin:auto">`
         + (error || !code
           ? `<h1>Not connected</h1><p>Google said: <code>${error ?? 'no code'}</code>.</p>`
@@ -95,7 +95,7 @@ function waitForCode(expectedState: string): Promise<string> {
 }
 
 async function main() {
-  console.log('\n  Connect Forge to a Google Drive folder\n');
+  console.log('\n  Connect Podium to a Google Drive folder\n');
 
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID ?? await ask('  OAuth client ID: ');
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? await ask('  OAuth client secret: ');
@@ -149,7 +149,7 @@ async function main() {
   if (!payload.refresh_token) {
     console.error(
       '\n  Google returned no refresh token.\n'
-      + '  Revoke Forge at https://myaccount.google.com/permissions and run this again —\n'
+      + '  Revoke Podium at https://myaccount.google.com/permissions and run this again —\n'
       + '  Google only issues one on a fresh grant.\n',
     );
     process.exit(1);
@@ -166,7 +166,7 @@ async function main() {
   GOOGLE_DRIVE_FOLDER_ID=${folderId}
 
   Treat the refresh token like a password: it grants upload access to files
-  Forge creates in your Drive, and it does not expire on its own.
+  Podium creates in your Drive, and it does not expire on its own.
 
   While the OAuth consent screen is in "Testing", Google expires it after
   7 days. Publish the screen before you rely on this.

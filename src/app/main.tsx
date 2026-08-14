@@ -2,14 +2,32 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import { MotionConfig } from 'motion/react';
 import { theme } from './theme';
 import { AppProviders } from './providers/AppProviders';
 import { validateEnv } from '@config/env';
 import App from './App';
+import '@fontsource-variable/manrope';
 import './index.css';
 
 const el = document.getElementById('root');
 if (!el) throw new Error('#root not found');
+
+function removeLegacyPwaRuntime() {
+  if ('serviceWorker' in navigator) {
+    void navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+      .catch(() => {});
+  }
+
+  if ('caches' in window) {
+    void caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => /workbox|podium|vite-pwa/i.test(key)).map((key) => caches.delete(key))))
+      .catch(() => {});
+  }
+}
 
 /**
  * A misconfigured deploy must say so. `@config/env` throws at import time on a
@@ -17,14 +35,17 @@ if (!el) throw new Error('#root not found');
  */
 function boot() {
   validateEnv();
+  removeLegacyPwaRuntime();
   createRoot(el!).render(
     <StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppProviders>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <MotionConfig reducedMotion="user">
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </MotionConfig>
         </AppProviders>
       </ThemeProvider>
     </StrictMode>,
@@ -35,7 +56,7 @@ try {
   boot();
 } catch (err) {
   el.innerHTML = `
-    <div style="font-family:Figtree,system-ui,sans-serif;background:#FDF8EC;color:#1D1B13;
+    <div style="font-family:Manrope,system-ui,sans-serif;background:#FDF8EC;color:#1D1B13;
                 min-height:100vh;display:grid;place-items:center;padding:24px">
       <div style="max-width:560px">
         <h1 style="font-size:24px;margin:0 0 12px">Configuration error</h1>

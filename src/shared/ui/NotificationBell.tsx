@@ -111,14 +111,11 @@ export function NotificationBell() {
                 Sign in to get notified when your entry is received, a deadline is close, or results
                 are published.
               </Typography>
-              {/* Routes to the front door rather than minting an anonymous
-                  account: the project may not have Anonymous enabled, and
-                  choosing a surface is what actually orients someone. */}
               <Button
                 variant="contained"
                 size="small"
                 component={Link}
-                to="/welcome"
+                to="/signin"
                 onClick={() => setAnchor(null)}
               >
                 Sign in

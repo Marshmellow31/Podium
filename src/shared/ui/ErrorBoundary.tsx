@@ -72,13 +72,13 @@ export class ErrorBoundary extends Component<Props, State> {
         }}
       >
         <Icon name={chunk ? 'sync_problem' : 'error'} size={40} color={c.errorInk} />
-        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mt: 2, mb: 1 }}>
-          {chunk ? 'Forge was updated' : 'Something went wrong on this screen'}
+        <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mt: 2, mb: 1 }}>
+          {chunk ? 'Podium was updated' : 'Something went wrong on this screen'}
         </Typography>
         <Typography sx={{ fontSize: 15, color: c.inkMuted, lineHeight: 1.6, mb: 3 }}>
           {chunk
             ? 'A new version was deployed while this tab was open, so part of the app could not load. Reloading picks up the new version.'
-            : 'The rest of Forge is still working — this one screen failed to render. Nothing you saved has been lost.'}
+            : 'The rest of Podium is still working — this one screen failed to render. Nothing you saved has been lost.'}
         </Typography>
 
         <Box

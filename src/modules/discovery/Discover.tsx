@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Box, Button, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Icon } from '@shared/ui/Icon';
-import { useChallenges } from '@core/firebase/hooks';
+import { usePublicChallenges } from '@core/firebase/hooks';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { PageTitle, EmptyState } from '@shared/ui/primitives';
@@ -10,7 +10,7 @@ import { c, radius, ease } from '@shared/design/tokens';
 
 /** S-03 — Discover. Filter chips are the design's primary control. */
 export default function Discover() {
-  const { data: challenges = [], isLoading, error } = useChallenges();
+  const { data: challenges = [], isLoading, error } = usePublicChallenges();
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('All');
   const theme = useTheme();
@@ -96,7 +96,19 @@ export default function Discover() {
         })}
       </Stack>
 
-      <QueryBoundary isLoading={isLoading} error={error} skeletonHeight={260} skeletonRows={2}>
+      <QueryBoundary
+        isLoading={isLoading}
+        error={error}
+        skeletonHeight={260}
+        skeletonRows={2}
+        errorFallback={(
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+          />
+        )}
+      >
       {results.length === 0 ? (
         <EmptyState
           icon="travel_explore"

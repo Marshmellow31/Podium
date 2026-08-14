@@ -2,7 +2,6 @@
  * UI-facing domain types.
  *
  * These are what screens and components consume. Two producers exist:
- *   • `src/mock/data.ts`        — the in-memory demo fixture
  *   • `src/core/firebase/mappers.ts` — Firestore documents, converted
  *
  * Dates are display strings here, never `Timestamp` — no screen should import
@@ -74,6 +73,10 @@ export interface Challenge {
   timeline: { registrationClosesAt: string; submissionClosesAt: string; resultsAt: string };
   counters: { registrations: number; submissions: number; reviewsCompleted: number; reviewsPending: number };
   leaderboardMode: 'hidden' | 'live' | 'afterClose' | 'public';
+  seriesId?: string | null;
+  seriesName?: string | null;
+  seriesLeaderboardEnabled?: boolean;
+  seriesPointsWeight?: number;
   prize: string;
   /**
    * Withhold entrant identity from judges. Optional so existing challenges keep

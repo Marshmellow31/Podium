@@ -1,10 +1,11 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
-import { useChallengeBySlug, useOrg, useWorkspaces, useFormSchemas, useRubric } from '@core/firebase/hooks';
+import { useChallengeBySlug, useOrg, useWorkspaces, usePublishedFormSchemas, useRubric } from '@core/firebase/hooks';
 import { EmptyState, Blobs, Tag, ListSkeleton } from '@shared/ui/primitives';
 import { allFields } from '@core/forms/compiler';
 import { c, radius, coverFor, mono, shadow } from '@shared/design/tokens';
+import { useAuth } from '@core/auth';
 
 const STAGE_LOOK = {
   done: { bg: c.success, fg: c.successInk, border: 'transparent', icon: 'check', fill: true },
@@ -16,10 +17,13 @@ const STAGE_LOOK = {
 export default function ChallengePublic() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: ch, isLoading } = useChallengeBySlug(slug);
   const { data: org } = useOrg();
-  const { data: workspaces = [] } = useWorkspaces();
-  const { data: schemas = {} } = useFormSchemas();
+  // Workspace documents are member-only. Public visitors do not need this
+  // optional label, so do not issue a query the rules will correctly reject.
+  const { data: workspaces = [] } = useWorkspaces(undefined, Boolean(user));
+  const { data: schemas = {} } = usePublishedFormSchemas();
   const { data: rubric = [] } = useRubric(ch?.id);
 
   if (isLoading) return <ListSkeleton rows={3} height={160} />;
@@ -72,13 +76,13 @@ export default function ChallengePublic() {
               <Box
                 key={label}
                 component="span"
-                sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', px: 1.5, py: 0.75, borderRadius: '8px', background: 'rgba(255,253,246,.86)', color: c.onPrimaryContainer }}
+                sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', px: 1.5, py: 0.75, borderRadius: '8px', background: 'rgba(250,250,250,.9)', color: c.onPrimaryContainer }}
               >
                 {label}
               </Box>
             ))}
           </Stack>
-          <Typography variant="h1" sx={{ fontSize: 'clamp(32px, 4.6vw, 52px)', color: c.onPrimaryContainer, mb: 1.5, maxWidth: '22ch', textWrap: 'balance' }}>
+          <Typography variant="h1" sx={{ fontSize: { xs: 32, md: 52 }, color: c.onPrimaryContainer, mb: 1.5, maxWidth: '22ch', textWrap: 'balance' }}>
             {ch.title}
           </Typography>
           <Typography sx={{ fontSize: 15, color: c.onPrimary, fontWeight: 600 }}>
@@ -150,7 +154,7 @@ export default function ChallengePublic() {
         <Stack component="aside" spacing={2} sx={{ position: { md: 'sticky' }, top: 96 }}>
           <Box sx={{ borderRadius: `${radius.panel}px`, background: c.surfaceContainer, p: 3 }}>
             <Typography variant="overline" sx={{ display: 'block', mb: 1.25 }}>Closes</Typography>
-            <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1, mb: 0.5 }}>
+            <Typography sx={{ fontSize: 40, fontWeight: 700, letterSpacing: 0, lineHeight: 1, mb: 0.5 }}>
               {ch.timeline.submissionClosesAt.split(' ')[0]}
             </Typography>
             <Typography sx={{ fontSize: 13, color: c.inkMuted, mb: 2.5 }}>

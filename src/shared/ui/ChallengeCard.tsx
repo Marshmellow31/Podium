@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Box, Stack, Typography } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from './Icon';
 import { CoverImage } from './CoverImage';
-import { liftSx as lift } from './primitives';
 import { resolveCoverUrl } from '@core/drive/links';
 import { c as t, radius } from '@shared/design/tokens';
+import { quickSpring, surfaceMotion } from './motion';
 import type { Challenge } from '@shared/types/domain';
 
 /**
@@ -19,39 +20,36 @@ import type { Challenge } from '@shared/types/domain';
 export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: string }) {
   const ch = challenge;
   const hasPhoto = resolveCoverUrl(ch.cover) !== null;
-
   return (
+    <Box
+      component={motion.div}
+      variants={surfaceMotion}
+      initial="initial"
+      animate="animate"
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.985 }}
+      transition={quickSpring}
+      sx={{ height: '100%' }}
+    >
     <Box
       component={Link}
       to={to}
       sx={{
-        ...lift,
         display: 'block',
         textDecoration: 'none',
         color: 'inherit',
+        cursor: 'pointer',
         borderRadius: `${radius.card}px`,
         overflow: 'hidden',
         background: t.surfaceCard,
         border: `1px solid ${t.outline}`,
         height: '100%',
+        transition: 'box-shadow 180ms',
+        '&:hover': { boxShadow: '0 4px 14px rgba(60,50,10,.10)' },
       }}
     >
       <CoverImage cover={ch.cover} category={ch.category} height={112} width={640} alt="">
-        {/* The decorative blob belongs to the gradient treatment; with a real
-            photo behind it, it would just be a smear. */}
-        {!hasPhoto && (
-          <Box
-            sx={{
-              position: 'absolute',
-              width: 160,
-              height: 150,
-              right: -46,
-              top: -56,
-              background: 'rgba(255,255,255,.32)',
-              borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%',
-            }}
-          />
-        )}
+        {!hasPhoto && <Box sx={{ position: 'absolute', width: 160, height: 150, right: -46, top: -56, background: 'rgba(255,255,255,.32)', borderRadius: '52% 48% 60% 40%/45% 55% 45% 55%' }} />}
         <Box
           component="span"
           sx={{
@@ -60,10 +58,10 @@ export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: str
             bottom: 14,
             fontSize: 11,
             fontWeight: 700,
-            letterSpacing: '.06em',
+            letterSpacing: 0,
             textTransform: 'uppercase',
             color: t.onPrimaryContainer,
-            background: 'rgba(255,253,246,.82)',
+            background: 'rgba(255,253,246,.88)',
             px: 1.25,
             py: 0.6,
             borderRadius: '8px',
@@ -74,7 +72,7 @@ export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: str
       </CoverImage>
 
       <Box sx={{ p: '18px 20px 20px' }}>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', mb: 1, lineHeight: 1.3 }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, letterSpacing: 0, mb: 1, lineHeight: 1.3 }}>
           {ch.title}
         </Typography>
         <Typography
@@ -103,6 +101,7 @@ export function ChallengeCard({ challenge, to }: { challenge: Challenge; to: str
           </Stack>
         </Stack>
       </Box>
+    </Box>
     </Box>
   );
 }

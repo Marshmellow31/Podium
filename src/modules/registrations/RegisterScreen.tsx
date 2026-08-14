@@ -4,26 +4,29 @@ import {
   Accordion, AccordionDetails, AccordionSummary, Box, Button, Dialog, DialogActions,
   DialogContent, Stack, Typography, CircularProgress,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
-import { useChallengeBySlug, useFormSchemas } from '@core/firebase/hooks';
+import { useChallengeBySlug, usePublishedFormSchemas } from '@core/firebase/hooks';
 import { useSubmitRegistration } from '@core/firebase/mutations';
-import { useAuth } from '@core/auth';
-import { demoOrgId } from '@core/firebase/app';
+import { useAuth, usePermissions } from '@core/auth';
+import { defaultOrgId } from '@core/firebase/app';
 import { NotSignedInError } from '@core/sync';
 import { FormRenderer, useFormEngine } from '@shared/ui/forms/FormRenderer';
 import { UploadProvider } from '@shared/ui/forms/UploadContext';
 import { stripHiddenAnswers } from '@core/forms/conditions';
 import { EmptyState, Tag, ListSkeleton } from '@shared/ui/primitives';
 import { c, radius, mono } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /** S-54 — Registration form, rendered entirely from a stored schema. */
 export default function RegisterScreen() {
   const { slug } = useParams();
   const { data: challenge, isLoading } = useChallengeBySlug(slug);
-  const { data: schemas = {} } = useFormSchemas();
+  const { data: schemas = {} } = usePublishedFormSchemas();
   const schema = challenge ? schemas[challenge.formSchemaId] : undefined;
   const [done, setDone] = useState(false);
   const { user } = useAuth();
+  const { isAdmin, ready: permissionsReady } = usePermissions();
   const submitMutation = useSubmitRegistration(challenge?.id);
 
   // Hooks must run unconditionally — fall back to an empty schema when missing.
@@ -33,6 +36,15 @@ export default function RegisterScreen() {
 
   if (isLoading) return <ListSkeleton rows={3} height={90} />;
   if (!challenge || !schema) return <EmptyState icon="search_off" title="Form not found" />;
+  if (permissionsReady && isAdmin) {
+    return (
+      <EmptyState
+        icon="admin_panel_settings"
+        title="Admins cannot enter competitions"
+        body="Admin accounts manage competitions and participants. Use a separate customer account to enter this competition."
+      />
+    );
+  }
 
   const stored = stripHiddenAnswers(schema, engine.answers);
 
@@ -42,8 +54,8 @@ export default function RegisterScreen() {
     submitMutation.mutate(
       {
         userId: user?.uid,
-        displayName: user?.displayName ?? 'Demo participant',
-        email: user?.email ?? 'demo@forge.app',
+        displayName: user?.displayName ?? '',
+        email: user?.email ?? '',
         formSchemaId: schema.id,
         formSchemaVersion: schema.version,
         // Hidden answers are dropped before storage — no ghost data.
@@ -71,7 +83,7 @@ export default function RegisterScreen() {
           <Typography noWrap sx={{ fontSize: 12, color: c.inkFaint }}>
             Entry form · {challenge.title}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             {schema.title}
           </Typography>
         </Box>
@@ -79,7 +91,13 @@ export default function RegisterScreen() {
       </Stack>
 
       <Box sx={{ height: 6, borderRadius: '3px', background: c.track, overflow: 'hidden', mb: 4 }}>
-        <Box sx={{ height: '100%', width: `${engine.percent}%`, background: c.accent, transition: 'width 300ms cubic-bezier(.2,0,0,1)' }} />
+        <Box
+          component={motion.div}
+          initial={false}
+          animate={{ width: `${engine.percent}%` }}
+          transition={quickSpring}
+          sx={{ height: '100%', background: c.accent }}
+        />
       </Box>
 
       <Stack direction="row" gap={1.75} sx={{ p: 2.25, borderRadius: `${radius.tile}px`, background: c.surfaceContainer, mb: 3 }}>
@@ -101,7 +119,7 @@ export default function RegisterScreen() {
           so it arrives as context. See shared/ui/forms/UploadContext.tsx. */}
       <UploadProvider
         value={{
-          orgId: demoOrgId(),
+          orgId: defaultOrgId(),
           challengeId: challenge?.id ?? '',
           getIdToken: () => (user ? user.getIdToken() : Promise.resolve(null)),
         }}
@@ -123,7 +141,7 @@ export default function RegisterScreen() {
             </Typography>
             <Typography sx={{ fontSize: 13, lineHeight: 1.5, color: c.errorBody }}>
               {needsSignIn
-                ? 'The demo is read-only until you sign in. Nothing you typed has been lost.'
+                ? 'Sign in to submit. Nothing you typed has been lost.'
                 : error instanceof Error
                   ? error.message
                   : String(error)}
@@ -179,11 +197,18 @@ export default function RegisterScreen() {
       <Dialog open={done} onClose={() => setDone(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Entry received
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

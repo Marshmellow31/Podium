@@ -1,5 +1,5 @@
 /**
- * Cloud Functions for Forge.
+ * Cloud Functions for Podium.
  *
  * ⚠️  **NOT DEPLOYED — but executed and tested.**
  *
@@ -206,7 +206,7 @@ export const onScoreWrite = onDocumentWritten(
  * Delivers a signed webhook.
  *
  * **This is why webhooks cannot exist on Spark.** The signature proves the
- * request came from Forge, and it requires a secret the receiver also holds.
+ * request came from Podium, and it requires a secret the receiver also holds.
  * A browser cannot hold that secret — shipping it in a bundle publishes it, and
  * an unsigned webhook is one anybody can forge, which is worse than none.
  *
@@ -245,9 +245,9 @@ export const dispatchWebhook = onCall<{ orgId: string; event: string; payload: u
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Forge-Event': event,
-              'X-Forge-Timestamp': timestamp,
-              'X-Forge-Signature': `sha256=${signature}`,
+              'X-Podium-Event': event,
+              'X-Podium-Timestamp': timestamp,
+              'X-Podium-Signature': `sha256=${signature}`,
             },
             body,
             signal: AbortSignal.timeout(10_000),

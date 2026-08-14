@@ -5,13 +5,14 @@ import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { Blobs, EmptyState, Eyebrow, Num, StatTile } from '@shared/ui/primitives';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { OrgLogo } from '@shared/ui/OrgLogo';
-import { useOrg, useChallenges } from '@core/firebase/hooks';
+import { PodiumMark } from '@shared/ui/PodiumMark';
+import { useOrg, usePublicChallenges } from '@core/firebase/hooks';
 import { c, radius } from '@shared/design/tokens';
 
 /**
  * S-09 — Public organization page. ROADMAP Phase 2.
  *
- * The page an organiser sends people to: `forge.app/o/iiitv`. Reachable signed
+ * The page an organiser sends people to: `podium.app/o/iiitv`. Reachable signed
  * out, because the whole purpose is to be shared with people who have no
  * account yet — asking them to sign in before they can see what a challenge
  * even is loses most of them.
@@ -24,9 +25,9 @@ import { c, radius } from '@shared/design/tokens';
 export default function PublicOrgPage() {
   const { slug } = useParams();
   const { data: org, isLoading, error } = useOrg();
-  const { data: challenges = [] } = useChallenges();
+  const { data: challenges = [] } = usePublicChallenges();
 
-  // The demo serves a single org, so the slug is validated rather than used to
+  // This deployment serves a single org, so the slug is validated rather than used to
   // look one up. When multi-org lands this becomes a query by slug and nothing
   // else on this screen changes.
   const matches = !slug || !org || org.slug === slug;
@@ -49,14 +50,12 @@ export default function PublicOrgPage() {
           to="/"
           sx={{ display: 'flex', alignItems: 'center', gap: 1.25, textDecoration: 'none', color: 'inherit' }}
         >
-          <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, color: c.primary, display: 'grid', placeItems: 'center', fontSize: 17, fontWeight: 800 }}>
-            F
-          </Box>
-          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: '-.02em' }}>Forge</Typography>
+          <PodiumMark size={32} radius={10} />
+          <Typography sx={{ fontSize: 19, fontWeight: 700, letterSpacing: 0 }}>Podium</Typography>
         </Box>
         <Box sx={{ flex: 1 }} />
         <Button component={Link} to="/discover" variant="text">Discover</Button>
-        <Button component={Link} to="/welcome" variant="contained">Get started</Button>
+        <Button component={Link} to="/home" variant="contained">Dashboard</Button>
       </Stack>
 
       <Box sx={{ maxWidth: 1100, mx: 'auto', px: { xs: 2.5, md: 5 }, pb: 8 }}>
@@ -65,7 +64,7 @@ export default function PublicOrgPage() {
             <EmptyState
               icon="domain_disabled"
               title="No organization at this address"
-              body={`Nothing on Forge is published at /o/${slug ?? ''}.`}
+              body={`Nothing on Podium is published at /o/${slug ?? ''}.`}
               action={<Button component={Link} to="/discover" variant="contained">Browse challenges</Button>}
             />
           ) : (
@@ -82,11 +81,11 @@ export default function PublicOrgPage() {
                   <OrgLogo logoUrl={org.logoUrl} initials={org.initials} size={72} radius={22} />
                   <Box sx={{ minWidth: 0 }}>
                     <Eyebrow>{org.type}</Eyebrow>
-                    <Typography sx={{ fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1.1 }}>
+                    <Typography sx={{ fontSize: { xs: 26, md: 40 }, fontWeight: 650, letterSpacing: 0, lineHeight: 1.15 }}>
                       {org.name}
                     </Typography>
                     <Typography sx={{ fontSize: 14, color: c.inkMuted, mt: 0.5 }}>
-                      forge.app/o/{org.slug}
+                      podium.app/o/{org.slug}
                     </Typography>
                   </Box>
                 </Stack>
@@ -98,7 +97,7 @@ export default function PublicOrgPage() {
                 <StatTile label="Entrants" value={entrants.toLocaleString()} icon="group" />
               </Box>
 
-              <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 2 }}>
+              <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 2 }}>
                 Open for entries
               </Typography>
               {live.length === 0 ? (
@@ -117,7 +116,7 @@ export default function PublicOrgPage() {
 
               {past.length > 0 && (
                 <>
-                  <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 2 }}>
+                  <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 2 }}>
                     Finished
                   </Typography>
                   <Box sx={{ display: 'grid', gap: 2.5, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
@@ -140,12 +139,12 @@ export default function PublicOrgPage() {
                     Run your own challenges
                   </Typography>
                   <Typography sx={{ fontSize: 13.5, color: c.inkMuted, lineHeight: 1.6 }}>
-                    <Num>{org.memberCount}</Num> people organize on Forge here. Creating an
+                    <Num>{org.memberCount}</Num> people organize on Podium here. Creating an
                     organization takes about a minute.
                   </Typography>
                 </Box>
-                <Button component={Link} to="/welcome" variant="contained" sx={{ flex: 'none' }}>
-                  Get started
+                <Button component={Link} to="/org/new" variant="contained" sx={{ flex: 'none' }}>
+                  Create organization
                 </Button>
               </Stack>
             </>

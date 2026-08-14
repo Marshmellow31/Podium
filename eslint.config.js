@@ -49,7 +49,6 @@ export default tseslint.config(
         { type: 'core', pattern: 'src/core/*/**', capture: ['engine'] },
         { type: 'shared', pattern: 'src/shared/**' },
         { type: 'config', pattern: 'src/config/**' },
-        { type: 'mock', pattern: 'src/mock/**' },
       ],
     },
     rules: {
@@ -68,7 +67,7 @@ export default tseslint.config(
         policies: [
           {
             from: { element: { type: 'app' } },
-            allow: { to: { element: { types: { anyOf: ['app', 'modules', 'core', 'shared', 'config', 'mock'] } } } },
+            allow: { to: { element: { types: { anyOf: ['app', 'modules', 'core', 'shared', 'config'] } } } },
           },
           // Deliberately NOT allowed to reach 'app': that inversion is exactly
           // what the dependency rule exists to prevent.
@@ -87,10 +86,6 @@ export default tseslint.config(
           {
             from: { element: { type: 'config' } },
             allow: { to: { element: { type: 'config' } } },
-          },
-          {
-            from: { element: { type: 'mock' } },
-            allow: { to: { element: { types: { anyOf: ['shared', 'core'] } } } },
           },
         ],
       }],

@@ -124,7 +124,7 @@ Mutations: always `onMutate` (optimistic) + `onError` (rollback) +
 
 ## 7. Styling
 
-Rewritten 2026-07-29 when the Forge design system landed (ADR-015). The previous
+Rewritten 2026-07-29 when the Podium design system landed (ADR-015). The previous
 "Tailwind owns layout, never use MUI `Box`/`Stack`" rule did not survive contact
 with a design specified entirely in inline styles; what follows is what the code
 actually does.

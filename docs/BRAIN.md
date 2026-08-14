@@ -1,11 +1,11 @@
-# BRAIN.md — The Durable Mind of ChallengeOS
+# BRAIN.md — The Durable Mind of Podium
 
 > Everything in this file is **stable**. It changes only when the product's
 > identity changes. Volatile state lives in [STATUS.md](STATUS.md).
 > If an implementation detail contradicts this file, the implementation is wrong.
 
-> ⚠️ **Naming is unresolved.** This file says *ChallengeOS*; the running app, its
-> `<title>`, the repo directory and the imported design system all say *Forge*.
+> ⚠️ **Naming is unresolved.** This file says *Podium*; the running app, its
+> `<title>`, the repo directory and the imported design system all say *Podium*.
 > Nothing here has been renamed — see [STATUS.md](STATUS.md) Q8. Everything below
 > is about the product, not the wordmark, and stands under either name.
 
@@ -13,7 +13,7 @@
 
 ## 1. The one-sentence product
 
-**ChallengeOS is a multi-tenant SaaS platform that lets any organization create,
+**Podium is a multi-tenant SaaS platform that lets any organization create,
 manage, judge and reward challenges, competitions, campaigns and
 submission-based activities from a single configurable system.**
 
@@ -35,7 +35,7 @@ Running a challenge today means stitching together:
 Seven tools, zero memory, no audit trail, no participant history. The pain is
 not "forms are bad." The pain is **fragmentation**.
 
-**ChallengeOS is not a form builder. It replaces the workflow, not the form.**
+**Podium is not a form builder. It replaces the workflow, not the form.**
 
 Success metric: *an organization deletes six tools from its process.*
 Not: *"we made a nicer Google Form."*
@@ -172,7 +172,7 @@ These are the reasons this project is engineering, not CRUD. Protect them.
 
 ## 11. Long-term vision
 
-ChallengeOS becomes the default platform an organization reaches for whenever it
+Podium becomes the default platform an organization reaches for whenever it
 needs to **engage participants, collect structured submissions, evaluate them
 fairly, publish transparent results, and build durable achievement history** —
 scaling from a five-person student club to an enterprise, on one architecture,

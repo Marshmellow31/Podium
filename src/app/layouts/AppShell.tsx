@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Box, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Box, IconButton, Popover, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { AnimatePresence, motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { c, radius, shadow, ease } from '@shared/design/tokens';
-import { useCurrentUser, useMyRegistrations, useChallenges } from '@core/firebase/hooks';
+import { useCurrentUser, useMyRegistrations, usePublicChallenges } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 import { NotificationBell } from '@shared/ui/NotificationBell';
+import { PodiumMark } from '@shared/ui/PodiumMark';
+import { pageMotion, spring } from '@shared/ui/motion';
 
 /**
  * The single application shell.
@@ -75,7 +79,7 @@ const BOTTOM_NAV: NavItem[] = [
 ];
 
 const SCREEN_TITLES: { test: (p: string) => boolean; title: string }[] = [
-  { test: (p) => p === '/home', title: 'Forge' },
+  { test: (p) => p === '/home', title: 'Podium' },
   { test: (p) => p.startsWith('/discover'), title: 'Discover' },
   { test: (p) => /^\/c\/[^/]+\/register$/.test(p), title: 'Entry form' },
   { test: (p) => p.startsWith('/c/'), title: 'Challenge' },
@@ -94,7 +98,6 @@ const SCREEN_TITLES: { test: (p: string) => boolean; title: string }[] = [
 const MODE_LABEL: Record<string, string> = {
   participant: 'Entering challenges',
   organizer: 'Organizing',
-  demo: 'Exploring the demo',
 };
 
 const isActive = (item: NavItem, path: string) =>
@@ -103,18 +106,20 @@ const isActive = (item: NavItem, path: string) =>
 export default function AppShell() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const navigate = useNavigate();
+  const [installHelpAnchor, setInstallHelpAnchor] = useState<HTMLButtonElement | null>(null);
 
   const inOrgContext = pathname.startsWith('/org');
   const primaryLabel = inOrgContext ? 'New challenge' : 'Enter a challenge';
   const primaryTo = inOrgContext ? '/org/challenges/new' : '/discover';
-  const screenTitle = SCREEN_TITLES.find((s) => s.test(pathname))?.title ?? 'Forge';
+  const screenTitle = SCREEN_TITLES.find((s) => s.test(pathname))?.title ?? 'Podium';
   const { user, signOutNow, mode, adminUnlocked } = useAuth();
-  const { data: profile } = useCurrentUser(user?.uid ?? 'u_self');
+  const { data: profile } = useCurrentUser(user?.uid);
   const { data: myRegistrations = [] } = useMyRegistrations(user?.uid);
-  const { data: challenges = [] } = useChallenges();
-  const displayName = user?.displayName ?? profile?.name ?? 'Demo viewer';
+  const { data: challenges = [] } = usePublicChallenges();
+  const displayName = user?.displayName ?? profile?.name ?? 'Account';
   const initials = displayName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   // Real counts, from data already in the cache. A zero renders as no badge
@@ -125,6 +130,7 @@ export default function AppShell() {
   };
 
   const showFab = !isDesktop && ['/home', '/discover', '/me/registrations'].includes(pathname);
+  const installHelpOpen = Boolean(installHelpAnchor);
 
   /**
    * A participant is not shown the organizing group.
@@ -134,11 +140,10 @@ export default function AppShell() {
    * rather than as "this is not for you". They can still reach any of it by URL,
    * and switching surface is one click away in the footer.
    *
-   * The group stays visible while the mode is unset, so nothing disappears for
-   * someone who has not been through onboarding.
+   * Admin sign-in sets organizer mode before entering the shell.
    */
   const visibleGroups = NAV_GROUPS.filter(
-    (g) => g.title !== 'Organizing' || mode === null || mode === 'organizer',
+    (g) => g.title !== 'Organizing' || mode === 'organizer',
   ).map((g) =>
     g.title === 'Organizing' && adminUnlocked
       ? { ...g, items: [...g.items, ADMIN_NAV] }
@@ -166,10 +171,8 @@ export default function AppShell() {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: '8px 16px 20px' }} component={Link} to="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: '12px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 19, fontWeight: 800, letterSpacing: '-.02em' }}>
-              F
-            </Box>
-            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>Forge</Typography>
+            <PodiumMark size={36} radius={12} />
+            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>Podium</Typography>
           </Stack>
 
           <Box
@@ -253,22 +256,13 @@ export default function AppShell() {
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>{displayName}</Typography>
               <Typography noWrap sx={{ fontSize: 12, color: c.inkMuted }}>
-                {user ? MODE_LABEL[mode ?? 'participant'] : 'Viewing · read-only'}
+                {MODE_LABEL[mode ?? 'participant']}
               </Typography>
             </Box>
-            {/* Reading needs no identity; writing does. Signed out, this leads
-                to the front door rather than silently minting a guest account —
-                choosing a surface is the thing that actually orients someone. */}
-            <Tooltip title={user ? 'Sign out' : 'Sign in or switch surface'}>
-              {user ? (
-                <IconButton size="small" aria-label="Sign out" onClick={() => void signOutNow()}>
-                  <Icon name="logout" size={20} />
-                </IconButton>
-              ) : (
-                <IconButton size="small" aria-label="Sign in" component={Link} to="/welcome">
-                  <Icon name="login" size={20} />
-                </IconButton>
-              )}
+            <Tooltip title="Sign out">
+              <IconButton size="small" aria-label="Sign out" onClick={() => void signOutNow()}>
+                <Icon name="logout" size={20} />
+              </IconButton>
             </Tooltip>
           </Stack>
         </Box>
@@ -279,18 +273,21 @@ export default function AppShell() {
           component="header"
           sx={{ position: 'sticky', top: 0, zIndex: 40, background: c.surface, borderBottom: `1px solid ${c.outline}` }}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={2}
-            sx={{ maxWidth: 1240, mx: 'auto', px: { xs: 2.5, md: 5 }, height: 72 }}
+          <Box
+            sx={{
+              width: '100%',
+              px: { xs: 2.5, md: 4 },
+              height: 72,
+              display: { xs: 'flex', md: 'grid' },
+              gridTemplateColumns: { md: 'minmax(280px, 640px) minmax(0, 1fr) auto' },
+              alignItems: 'center',
+              gap: 2,
+            }}
           >
             {!isDesktop && (
               <Stack direction="row" alignItems="center" spacing={1.25} sx={{ flex: 1, minWidth: 0 }}>
-                <Box sx={{ width: 32, height: 32, borderRadius: '10px', background: c.inverse, display: 'grid', placeItems: 'center', color: c.primary, fontSize: 17, fontWeight: 800 }}>
-                  F
-                </Box>
-                <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+                <PodiumMark size={32} radius={10} />
+                <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
                   {screenTitle}
                 </Typography>
               </Stack>
@@ -301,12 +298,13 @@ export default function AppShell() {
                 alignItems="center"
                 spacing={1.5}
                 sx={{
-                  flex: 1,
-                  maxWidth: 560,
-                  height: 52,
-                  px: 2.5,
-                  borderRadius: '26px',
+                  gridColumn: { md: '1' },
+                  width: '100%',
+                  height: 48,
+                  px: 2,
+                  borderRadius: `${radius.field}px`,
                   background: c.surfaceField,
+                  border: `1px solid ${c.outlineSoft}`,
                   transition: 'background 200ms',
                   '&:hover': { background: c.surfaceFieldHover },
                 }}
@@ -318,20 +316,34 @@ export default function AppShell() {
                   aria-label="Search"
                   sx={{ flex: 1, border: 'none', background: 'transparent', fontSize: 15, minWidth: 0 }}
                 />
-                <Box component="span" sx={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: c.inkFaint, border: '1px solid #D5CDB8', borderRadius: '6px', px: 0.75, py: 0.25 }}>
+                <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: c.inkFaint, border: `1px solid ${c.outline}`, borderRadius: '6px', px: 0.75, py: 0.25 }}>
                   ⌘K
                 </Box>
               </Stack>
             )}
-            <Box sx={{ flex: isDesktop ? undefined : 'none' }} />
-            <Stack direction="row" alignItems="center" spacing={0.5}>
+            {!isDesktop && <Box sx={{ flex: 'none' }} />}
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={0.5}
+              sx={{ flex: 'none', ml: { xs: 'auto', md: 0 }, gridColumn: { md: '3' }, justifySelf: { md: 'end' } }}
+            >
+              <Tooltip title="Install help">
+                <IconButton
+                  aria-label="Show install instructions"
+                  aria-haspopup="dialog"
+                  aria-expanded={installHelpOpen}
+                  onClick={(event) => setInstallHelpAnchor(event.currentTarget)}
+                >
+                  <Icon name="help_outline" size={22} />
+                </IconButton>
+              </Tooltip>
               <NotificationBell />
-              <Tooltip title={user ? `Signed in as ${displayName} — sign out` : 'Sign in'}>
+              <Tooltip title={`Signed in as ${displayName} — sign out`}>
                 <Box
-                  component={user ? 'button' : Link}
-                  to={user ? undefined : '/signin'}
-                  aria-label={user ? `Signed in as ${displayName}. Sign out` : 'Sign in'}
-                  onClick={user ? () => void signOutNow() : undefined}
+                  component="button"
+                  aria-label={`Signed in as ${displayName}. Sign out`}
+                  onClick={() => void signOutNow()}
                   sx={{
                     width: 40, height: 40, ml: 0.5, p: 0, border: 'none', cursor: 'pointer',
                     borderRadius: '50%', background: c.inverse, color: c.primary,
@@ -340,18 +352,68 @@ export default function AppShell() {
                     '&:hover': { transform: 'scale(1.06)' },
                   }}
                 >
-                  {user ? initials : <Icon name="login" size={20} />}
+                  {initials}
                 </Box>
               </Tooltip>
             </Stack>
-          </Stack>
+          </Box>
+          <Popover
+            open={installHelpOpen}
+            anchorEl={installHelpAnchor}
+            onClose={() => setInstallHelpAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: {
+                sx: {
+                  width: { xs: 'calc(100vw - 32px)', sm: 360 },
+                  maxWidth: 360,
+                  mt: 1,
+                  borderRadius: `${radius.tile}px`,
+                  border: `1px solid ${c.outline}`,
+                  background: c.surfaceCard,
+                  boxShadow: shadow.dialog,
+                  p: 2.25,
+                },
+              },
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Stack direction="row" alignItems="center" gap={1.25}>
+                <Icon name="install_desktop" size={22} color={c.primaryIcon} />
+                <Typography sx={{ fontSize: 15, fontWeight: 750 }}>
+                  Install Podium
+                </Typography>
+              </Stack>
+              <Typography sx={{ fontSize: 13, lineHeight: 1.55, color: c.inkMuted }}>
+                PWA install support is planned. For now, use your browser shortcut option.
+              </Typography>
+              <Box component="ol" sx={{ m: 0, pl: 2.25, color: c.inkBody, fontSize: 13, lineHeight: 1.65 }}>
+                <li>Open Podium in Chrome or Edge.</li>
+                <li>Choose the browser menu.</li>
+                <li>Select <Box component="strong">Save and share</Box>, then <Box component="strong">Create shortcut</Box>.</li>
+                <li>Enable <Box component="strong">Open as window</Box>, then create it.</li>
+              </Box>
+            </Stack>
+          </Popover>
         </Box>
 
         <Box sx={{ flex: 1, px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 } }}>
-          <Box sx={{ maxWidth: 1240, mx: 'auto' }}>
-            <Box className="rise" key={pathname}>
-              <Outlet />
-            </Box>
+          <Box sx={{ maxWidth: 1240, mx: 'auto', position: 'relative', display: 'grid' }}>
+            <AnimatePresence initial={false}>
+              <Box
+                key={pathname}
+                component={motion.div}
+                variants={pageMotion}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ ...spring, duration: 0.2 }}
+                sx={{ gridArea: '1 / 1', willChange: 'transform, opacity' }}
+              >
+                <Outlet />
+              </Box>
+            </AnimatePresence>
           </Box>
         </Box>
 

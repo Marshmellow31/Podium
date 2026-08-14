@@ -34,8 +34,8 @@ export default function VerifyCertificate() {
             <EmptyState
               icon="gpp_bad"
               title="No certificate with that code"
-              body="Nothing on Forge matches this verification code. It may be mistyped, revoked, or was never issued."
-              action={<Button component={Link} to="/" variant="contained">Go to Forge</Button>}
+              body="Nothing on Podium matches this verification code. It may be mistyped, revoked, or was never issued."
+              action={<Button component={Link} to="/" variant="contained">Go to Podium</Button>}
             />
             <Typography sx={{ fontSize: 12, color: c.inkFaint, textAlign: 'center', mt: 2 }}>
               Checked code <Box component="span" sx={{ fontFamily: mono }}>{certId}</Box>
@@ -53,18 +53,18 @@ export default function VerifyCertificate() {
               <Blobs variant="detail" />
               <Box sx={{ position: 'relative' }}>
                 <Icon name="verified" size={48} fill color={c.successInk} />
-                <Typography sx={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.02em', mt: 1.5, color: c.onSuccess }}>
+                <Typography sx={{ fontSize: 24, fontWeight: 700, letterSpacing: 0, mt: 1.5, color: c.onSuccess }}>
                   This certificate is genuine
                 </Typography>
                 <Typography sx={{ fontSize: 14, color: c.onSuccess, mt: 1, opacity: 0.85 }}>
-                  Issued by Forge and not revoked.
+                  Issued by Podium and not revoked.
                 </Typography>
               </Box>
             </Box>
 
             <Box sx={panelSx}>
               <Eyebrow>Awarded to</Eyebrow>
-              <Typography sx={{ fontSize: 26, fontWeight: 700, letterSpacing: '-.02em', mb: 2.5 }}>
+              <Typography sx={{ fontSize: 26, fontWeight: 700, letterSpacing: 0, mb: 2.5 }}>
                 {certificate.award}
               </Typography>
 
@@ -93,7 +93,7 @@ export default function VerifyCertificate() {
             </Box>
 
             <Typography sx={{ fontSize: 12, color: c.inkFaint, lineHeight: 1.6, mt: 2.5, textAlign: 'center' }}>
-              Certificates are written by Forge and are read-only to every client, including the
+              Certificates are written by Podium and are read-only to every client, including the
               organization that issued them. Revoking one changes what this page says.
             </Typography>
           </>

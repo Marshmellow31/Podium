@@ -1,10 +1,10 @@
-# Prompt — ChallengeOS Screen Structure (Mobile + Desktop)
+# Prompt — Podium Screen Structure (Mobile + Desktop)
 
 Paste the block below into a fresh session. It produces `docs/UI_SCREENS.md`.
 
 ---
 
-You are designing the complete screen structure for **ChallengeOS**, a
+You are designing the complete screen structure for **Podium**, a
 multi-tenant SaaS platform where organizations create, run, judge and reward
 challenges (competitions, hackathons, campaigns, employee engagement, creator
 contests, assignment submissions).

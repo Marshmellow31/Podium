@@ -4,6 +4,7 @@
  */
 import { useMemo, useState } from 'react';
 import { Box, Stack, Typography, Collapse } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { c, radius } from '@shared/design/tokens';
 import type { Answers, FormSchema } from '@core/forms/types';
@@ -11,6 +12,7 @@ import { computeVisibility } from '@core/forms/conditions';
 import { validateAnswers, completionPercent } from '@core/forms/compiler';
 import { getFieldInput } from './fieldComponents';
 import { ProgressBar } from '@shared/ui/primitives';
+import { softSpring, surfaceMotion } from '@shared/ui/motion';
 
 export function useFormEngine(schema: FormSchema, initial: Answers = {}) {
   const [answers, setAnswers] = useState<Answers>(() => {
@@ -60,10 +62,15 @@ export function FormRenderer({
 
       {showErrors && errors.length > 0 && (
         <Stack
+          component={motion.div}
+          variants={surfaceMotion}
+          initial="initial"
+          animate="animate"
+          transition={softSpring}
           direction="row"
           gap={1.75}
           alignItems="flex-start"
-          sx={{ borderRadius: `${radius.tile}px`, background: c.errorContainer, p: '18px 20px', animation: 'fadeUp 240ms cubic-bezier(.2,0,0,1) both' }}
+          sx={{ borderRadius: `${radius.tile}px`, background: c.errorContainer, p: '18px 20px' }}
         >
           <Icon name="error" size={22} color={c.errorInk} />
           <Box>

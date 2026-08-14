@@ -58,7 +58,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
       <Frame
         icon="account_circle"
         title="Sign in to continue"
-        body="The admin panel is tied to an account: every action it takes is recorded against a name, and an anonymous session has none to record."
+        body="The admin panel is tied to an account so every action can be recorded against a verified identity."
       >
         <Button
           variant="contained"
@@ -90,7 +90,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
         body="The key is right, but the console shows an organization's people and entries and you do not belong to this one. Ask an owner for an invitation — the database refuses these reads regardless of what this screen does."
       >
         <Button variant="outlined" component={Link} to="/home" sx={{ height: 48 }}>
-          Back to Forge
+          Back to Podium
         </Button>
       </Frame>
     );
@@ -163,7 +163,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
       </Stack>
 
       <Button variant="text" size="small" component={Link} to="/home" sx={{ mt: 0.5 }}>
-        Back to Forge
+        Back to Podium
       </Button>
     </Frame>
   );
@@ -201,7 +201,7 @@ function Frame({
             </Box>
           )}
           {title && (
-            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>{title}</Typography>
+            <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>{title}</Typography>
           )}
           {body && (
             <Typography sx={{ fontSize: 14, color: c.inkMuted, lineHeight: 1.65 }}>{body}</Typography>

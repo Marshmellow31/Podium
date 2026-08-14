@@ -81,6 +81,11 @@ beforeEach(async () => {
       userId: 'u_member', status: 'active', roleIds: ['viewer'], resolvedPermissions: ['org.read'],
     });
 
+    await setDoc(doc(db, 'organizations', ORG, 'members', 'u_admin'), {
+      userId: 'u_admin', status: 'active', roleIds: ['admin'],
+      resolvedPermissions: ['member.read', 'member.invite', 'member.manage', 'role.manage', 'challenge.update'],
+    });
+
     // A suspended member — active membership is not the same as existing.
     await setDoc(doc(db, 'organizations', ORG, 'members', 'u_suspended'), {
       userId: 'u_suspended', status: 'suspended', roleIds: ['organizer'],
@@ -266,6 +271,11 @@ describe('registrations', () => {
     await assertFails(setDoc(doc(db, ...regPath('u_someone_else')), { userId: 'u_someone_else', status: 'pending' }));
   });
 
+  it('denies an administrator registering for a competition', async () => {
+    const db = asUser('u_admin');
+    await assertFails(setDoc(doc(db, ...regPath('u_admin')), { userId: 'u_admin', status: 'pending' }));
+  });
+
   it('denies a userId that disagrees with the document id', async () => {
     const db = asUser('u_member');
     await assertFails(setDoc(doc(db, ...regPath('u_member')), { userId: 'u_other', status: 'pending' }));
@@ -340,6 +350,13 @@ describe('submissions', () => {
   const subPath = (sid: string) => ['organizations', ORG, 'challenges', CHALLENGE, 'submissions', sid] as const;
 
   it('lets a user submit their own entry', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'organizations', ORG, 'challenges', CHALLENGE, 'registrations', 'u_member'), {
+        userId: 'u_member',
+        status: 'active',
+      });
+    });
+
     const db = asUser('u_member');
     await assertSucceeds(setDoc(doc(db, ...subPath('u_member_submission')), {
       userId: 'u_member', status: 'draft',

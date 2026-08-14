@@ -1,9 +1,11 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import AppShell from './layouts/AppShell';
+import PublicLayout from './layouts/PublicLayout';
 import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { c } from '@shared/design/tokens';
+import { useAuth } from '@core/auth';
 
 /**
  * Routes are lazy so a viewer downloads the screen they asked for, not all
@@ -14,7 +16,6 @@ import { c } from '@shared/design/tokens';
  * round-trip.
  */
 const Landing = lazy(() => import('@modules/discovery/Landing'));
-const Welcome = lazy(() => import('@modules/onboarding/Welcome'));
 const SignIn = lazy(() => import('@modules/auth/SignIn'));
 /**
  * Both halves of `/admin` are lazy, and that is load-bearing rather than
@@ -70,6 +71,19 @@ function RouteFallback() {
   );
 }
 
+function RequireAuth({ children }: { children: ReactNode }) {
+  const { ready, user } = useAuth();
+  const location = useLocation();
+
+  if (!ready) return <RouteFallback />;
+  if (user) return children;
+
+  const adminPath = location.pathname.startsWith('/org')
+    || location.pathname.startsWith('/admin')
+    || location.pathname.startsWith('/judge');
+  return <Navigate to={adminPath ? '/signin?as=admin' : '/signin'} replace />;
+}
+
 export default function App() {
   // Keyed on the path so navigating away from a failed screen clears the error
   // rather than pinning it over the next healthy route.
@@ -79,28 +93,30 @@ export default function App() {
     <ErrorBoundary resetKey={pathname}>
       <Suspense fallback={<RouteFallback />}>
       <Routes>
-        {/* Landing and onboarding are the two screens outside the shell: the
-            shell's nav assumes you have already chosen a surface. */}
+        {/* Public catalog routes stay reachable without an account. Writes and
+            personal data remain behind RequireAuth and Firestore rules. */}
         <Route path="/" element={<Landing />} />
-        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/welcome" element={<Navigate to="/signin" replace />} />
         {/* Sign-in is its own full-bleed screen: the shell's nav and search are
             chrome for someone who is already in. */}
         <Route path="/signin" element={<SignIn />} />
-        {/* Public organization page — shareable, works signed out. */}
-        <Route path="/o/:slug" element={<PublicOrgPage />} />
-
-        <Route element={<AppShell />}>
-          {/* For you */}
-          <Route path="/home" element={<ParticipantDashboard />} />
+        <Route element={<PublicLayout />}>
           <Route path="/discover" element={<Discover />} />
           <Route path="/c/:slug" element={<ChallengePublic />} />
+          <Route path="/c/:slug/leaderboard" element={<Leaderboard />} />
+          <Route path="/verify/:certId" element={<VerifyCertificate />} />
+        </Route>
+
+        <Route path="/o/:slug" element={<RequireAuth><PublicOrgPage /></RequireAuth>} />
+
+        <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+          {/* For you */}
+          <Route path="/home" element={<ParticipantDashboard />} />
           <Route path="/c/:slug/register" element={<RegisterScreen />} />
           <Route path="/c/:slug/submit" element={<SubmitScreen />} />
-          <Route path="/c/:slug/leaderboard" element={<Leaderboard />} />
           <Route path="/c/:slug/vote" element={<CommunityVote />} />
           <Route path="/me/registrations" element={<MyEntries />} />
           <Route path="/me/achievements" element={<Awards />} />
-          <Route path="/verify/:certId" element={<VerifyCertificate />} />
 
           {/* Organizing */}
           <Route path="/org" element={<AdminDashboard />} />

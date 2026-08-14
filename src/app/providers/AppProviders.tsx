@@ -1,10 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
-import { Box, CircularProgress } from '@mui/material';
-import { c } from '@shared/design/tokens';
+import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@core/auth';
-import { fetchIndexSnapshot, hydrateFromIndex } from '@core/firebase/snapshot';
-import { PwaPrompts } from '@shared/ui/PwaPrompts';
 
 /**
  * Composition root. Everything here is wiring; the behaviour lives in `core/`.
@@ -38,57 +34,11 @@ const queryClient = new QueryClient({
   },
 });
 
-/**
- * Pulls the pre-joined index snapshot once and seeds the whole query cache
- * from it — one document read instead of ~138 across a full walkthrough.
- * See core/firebase/snapshot.ts for the arithmetic.
- *
- * If the snapshot is absent (an older seed, or a project seeded before this
- * existed) nothing breaks: the hooks fall through to their per-collection
- * queries, just more expensively. So a missing snapshot never fails the app.
- */
-function SnapshotHydrator({ children }: { children: ReactNode }) {
-  const qc = useQueryClient();
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchIndexSnapshot()
-      .then((snap) => {
-        if (!cancelled && snap) hydrateFromIndex(qc, snap);
-      })
-      .catch(() => {
-        /* fall through to per-collection reads */
-      })
-      .finally(() => !cancelled && setDone(true));
-    return () => {
-      cancelled = true;
-    };
-  }, [qc]);
-
-  if (!done) {
-    return (
-      <Box
-        sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: c.surface }}
-        role="status"
-        aria-live="polite"
-        aria-label="Loading Forge"
-      >
-        <CircularProgress sx={{ color: c.accent }} />
-      </Box>
-    );
-  }
-  return <>{children}</>;
-}
-
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SnapshotHydrator>{children}</SnapshotHydrator>
-        {/* Outside the hydrator: an update or install offer should not wait on
-            a Firestore read, and must still appear if that read fails. */}
-        <PwaPrompts />
+        {children}
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -1,4 +1,4 @@
-# ChallengeOS — Agent Operating Manual
+# Podium — Agent Operating Manual
 
 > Multi-tenant SaaS to create, run, judge and reward **challenges** of any kind.
 > One deployment. Thousands of isolated organizations.
@@ -102,7 +102,7 @@ comment at the top of `core/sync/index.ts`), Cloud Functions (Spark plan; see
 ADR-019 and DEPLOY.md for exactly what that costs us), FCM push (in-app
 notifications only, by decision).
 
-**Look and feel:** the Forge design system — Material Design 3 expressive, warm
+**Look and feel:** the Podium design system — Material Design 3 expressive, warm
 amber — imported from a Agent Design project. Tokens in `src/shared/design/tokens.ts`,
 theme in `src/app/theme.ts`, icons are Material Symbols Rounded. See ADR-015.
 

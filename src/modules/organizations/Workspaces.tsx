@@ -17,7 +17,7 @@ import { c, radius } from '@shared/design/tokens';
  * S-14 — Workspaces.
  *
  * A workspace groups challenges by the team that runs them, which is what makes
- * one Forge deployment usable by a whole institution rather than by one club.
+ * one Podium deployment usable by a whole institution rather than by one club.
  *
  * Read-only for now: creating one is a transactional write that also needs to
  * seed permissions and re-point challenges, and doing that half-way would leave
@@ -102,7 +102,7 @@ export default function Workspaces() {
                     >
                       <Icon name="folder" size={24} fill />
                     </Box>
-                    <Typography sx={{ fontSize: 17, fontWeight: 700, letterSpacing: '-.01em', mb: 0.5 }}>
+                    <Typography sx={{ fontSize: 17, fontWeight: 700, letterSpacing: 0, mb: 0.5 }}>
                       {w.name}
                     </Typography>
                     <Typography sx={{ fontSize: 13, color: c.inkMuted }}>

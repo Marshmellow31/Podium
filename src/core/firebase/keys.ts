@@ -35,7 +35,7 @@ export const qk = {
   webhooks: (orgId: string) => ['org', orgId, 'webhooks'] as const,
 
   user: (userId: string) => ['user', userId] as const,
-  certificates: () => ['certificates'] as const,
+  certificates: (userId = 'all') => ['certificates', userId] as const,
 
   /** In-app notification inbox, per user per org. */
   notifications: (orgId: string, userId: string) =>

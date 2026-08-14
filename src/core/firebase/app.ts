@@ -56,8 +56,11 @@ export function db(): Firestore {
 }
 
 /**
- * The org the public demo reads from. See ADR-016.
+ * The tenant selected for this single-organization deployment.
  * A function, not a constant: env is parsed lazily so a missing variable
  * surfaces as a rendered error rather than a module-scope throw.
  */
-export const demoOrgId = () => env().VITE_DEMO_ORG_ID;
+export const defaultOrgId = () => env().VITE_DEFAULT_ORG_ID;
+
+/** @deprecated Use defaultOrgId. Kept temporarily for internal call-site compatibility. */
+export const demoOrgId = defaultOrgId;

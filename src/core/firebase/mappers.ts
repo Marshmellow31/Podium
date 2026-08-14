@@ -74,6 +74,10 @@ export const toChallenge = (d: ChallengeDoc): Challenge => ({
   },
   counters: d.counters,
   leaderboardMode: d.leaderboardMode === 'topN' ? 'live' : d.leaderboardMode,
+  seriesId: d.seriesId ?? null,
+  seriesName: d.seriesName ?? null,
+  seriesLeaderboardEnabled: d.seriesLeaderboardEnabled ?? false,
+  seriesPointsWeight: d.seriesPointsWeight ?? 1,
   prize: d.prize,
   // Absent reads as off. Turning blind judging on by accident would silently
   // change how a live competition behaves.

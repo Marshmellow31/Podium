@@ -48,6 +48,10 @@ type Draft = {
   teamsEnabled: boolean;
   maxTeamSize: number;
   leaderboardMode: Challenge['leaderboardMode'];
+  seriesId: string | null;
+  seriesName: string;
+  seriesLeaderboardEnabled: boolean;
+  seriesPointsWeight: number;
   stages: Array<{ key: string; name: string; type: string; state: 'done' | 'active' | 'locked' }>;
   timeline: { registrationClosesAt: string; submissionClosesAt: string; resultsAt: string };
 };
@@ -78,10 +82,17 @@ function emptyDraft(workspaceId: string, formSchemaId: string): Draft {
     teamsEnabled: false,
     maxTeamSize: 4,
     leaderboardMode: 'afterClose',
+    seriesId: null,
+    seriesName: '',
+    seriesLeaderboardEnabled: false,
+    seriesPointsWeight: 1,
     stages: DEFAULT_STAGES.map((s) => ({ ...s })),
     timeline: { registrationClosesAt: '', submissionClosesAt: '', resultsAt: '' },
   };
 }
+
+const seriesIdFromName = (name: string) =>
+  slugify(name).replace(/^challenge$/, 'series');
 
 export default function ChallengeEditor() {
   const { cid } = useParams();
@@ -141,6 +152,10 @@ export default function ChallengeEditor() {
         teamsEnabled: existing.teamsEnabled ?? false,
         maxTeamSize: existing.maxTeamSize ?? 4,
         leaderboardMode: existing.leaderboardMode,
+        seriesId: existing.seriesId ?? null,
+        seriesName: existing.seriesName ?? '',
+        seriesLeaderboardEnabled: existing.seriesLeaderboardEnabled ?? false,
+        seriesPointsWeight: existing.seriesPointsWeight ?? 1,
         stages: existing.stages.map((s) => ({ ...s })),
         timeline: {
           registrationClosesAt: asDateInput(existing.timeline.registrationClosesAt),
@@ -182,6 +197,17 @@ export default function ChallengeEditor() {
     [challenges, draft?.id],
   );
 
+  const seriesOptions = useMemo(
+    () => Array.from(
+      new Map(
+        challenges
+          .filter((ch) => ch.seriesId && ch.seriesName)
+          .map((ch) => [ch.seriesId!, { id: ch.seriesId!, name: ch.seriesName! }]),
+      ).values(),
+    ).sort((a, b) => a.name.localeCompare(b.name)),
+    [challenges],
+  );
+
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => (d ? { ...d, [key]: value } : d));
 
@@ -193,6 +219,9 @@ export default function ChallengeEditor() {
     if (takenSlugs.includes(draft.slug)) list.push(`The slug “${draft.slug}” is already used by another challenge.`);
     if (!draft.formSchemaId) list.push('Pick a registration form. Participants have nothing to fill in without one.');
     if (!draft.workspaceId) list.push('Pick a workspace.');
+    if (draft.seriesLeaderboardEnabled && !draft.seriesName.trim()) {
+      list.push('A shared leaderboard needs a series name.');
+    }
 
     const { registrationClosesAt: reg, submissionClosesAt: sub, resultsAt: res } = draft.timeline;
     if (reg && sub && reg > sub) list.push('Registration closes after submissions close, which no one could satisfy.');
@@ -212,12 +241,18 @@ export default function ChallengeEditor() {
     if (!draft) return;
     const finalStatus = status ?? draft.status;
     const id = draft.id || newChallengeId(draft.title);
+    const cleanSeriesName = draft.seriesName.trim();
+    const seriesId = cleanSeriesName ? draft.seriesId || seriesIdFromName(cleanSeriesName) : null;
 
     await save.mutateAsync({
       input: {
         ...draft,
         id,
         status: finalStatus,
+        seriesId,
+        seriesName: cleanSeriesName || null,
+        seriesLeaderboardEnabled: Boolean(cleanSeriesName && draft.seriesLeaderboardEnabled),
+        seriesPointsWeight: Math.max(0, Number(draft.seriesPointsWeight) || 0),
         formSchemaVersion: schemas[draft.formSchemaId]?.version ?? 1,
         timeline: {
           registrationClosesAt: draft.timeline.registrationClosesAt || null,
@@ -268,7 +303,7 @@ export default function ChallengeEditor() {
         </IconButton>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Eyebrow>{isNew ? 'New challenge' : 'Editing'}</Eyebrow>
-          <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>
+          <Typography noWrap sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0 }}>
             {draft.title || 'Untitled challenge'}
           </Typography>
         </Box>
@@ -327,7 +362,7 @@ export default function ChallengeEditor() {
               fullWidth
               value={draft.slug}
               onChange={(e) => set('slug', slugify(e.target.value))}
-              helperText={`forge.app/c/${draft.slug || '…'}`}
+              helperText={`podium.app/c/${draft.slug || '…'}`}
               error={takenSlugs.includes(draft.slug)}
             />
             <Tooltip title="Regenerate from the title. Only do this before sharing the link.">
@@ -420,6 +455,74 @@ export default function ChallengeEditor() {
               <MenuItem key={id} value={id}>{schemas[id]?.title ?? id} (v{schemas[id]?.version})</MenuItem>
             ))}
           </TextField>
+
+          <Divider />
+
+          <Box>
+            <Typography sx={{ fontSize: 17, fontWeight: 700, mb: 0.5 }}>Competition series</Typography>
+            <Typography sx={{ fontSize: 14, color: c.inkMuted, lineHeight: 1.6 }}>
+              Use this when several competitions belong together, like weekly quizzes across a semester.
+              Each competition keeps its own leaderboard, and the series can receive a combined one.
+            </Typography>
+          </Box>
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} gap={2}>
+            <TextField
+              select
+              label="Series"
+              fullWidth
+              value={draft.seriesId ?? ''}
+              onChange={(e) => {
+                const id = e.target.value;
+                const picked = seriesOptions.find((s) => s.id === id);
+                setDraft((d) => d && {
+                  ...d,
+                  seriesId: picked?.id ?? null,
+                  seriesName: picked?.name ?? '',
+                  seriesLeaderboardEnabled: picked ? d.seriesLeaderboardEnabled : false,
+                });
+              }}
+              helperText="Pick an existing group or type a new one below."
+            >
+              <MenuItem value="">Standalone competition</MenuItem>
+              {seriesOptions.map((s) => <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>)}
+            </TextField>
+            <TextField
+              label="New or custom series"
+              fullWidth
+              value={draft.seriesName}
+              onChange={(e) => {
+                const name = e.target.value;
+                setDraft((d) => d && {
+                  ...d,
+                  seriesName: name,
+                  seriesId: name.trim() ? seriesIdFromName(name) : null,
+                });
+              }}
+              placeholder="Semester Quiz League"
+            />
+          </Stack>
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} gap={2} alignItems={{ sm: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={draft.seriesLeaderboardEnabled}
+                  onChange={(e) => set('seriesLeaderboardEnabled', e.target.checked)}
+                />
+              }
+              label={<Typography sx={{ fontSize: 15, fontWeight: 600 }}>Count toward shared leaderboard</Typography>}
+            />
+            <TextField
+              size="small"
+              type="number"
+              label="Points weight"
+              value={draft.seriesPointsWeight}
+              onChange={(e) => set('seriesPointsWeight', Math.max(0, Number(e.target.value)))}
+              helperText="1 means normal weight."
+              sx={{ width: { xs: '100%', sm: 180 } }}
+            />
+          </Stack>
 
           {draft.formSchemaId && !isNew && (
             <Button
@@ -600,7 +703,7 @@ export default function ChallengeEditor() {
             label="Prize" fullWidth value={draft.prize}
             onChange={(e) => set('prize', e.target.value)}
             placeholder="₹25,000 and a feature on the community page"
-            helperText="Recorded and displayed. Forge never disburses money."
+            helperText="Recorded and displayed. Podium never disburses money."
           />
 
           <Divider />

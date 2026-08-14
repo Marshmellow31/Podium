@@ -7,11 +7,9 @@ import {
 import { StageStepper } from '@shared/ui/StageStepper';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { c, radius, ease } from '@shared/design/tokens';
-import { useChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
+import { usePublicChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 
-/** The profile seeded into the index snapshot for the signed-out demo. */
-const DEMO_USER_ID = 'u_self';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 
 const BADGE_ICONS: Record<string, string> = {
@@ -28,12 +26,10 @@ const BADGE_ICONS: Record<string, string> = {
 export default function ParticipantDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: challenges = [], isLoading, error } = useChallenges();
+  const { data: challenges = [], isLoading, error } = usePublicChallenges();
   const { data: badges = [] } = useBadges();
   const { data: certificates = [] } = useCertificates();
-  // No sign-in on the public demo, so fall back to the seeded demo profile
-  // that travels in the index snapshot. See ADR-016.
-  const { data: profile } = useCurrentUser(user?.uid ?? DEMO_USER_ID);
+  const { data: profile } = useCurrentUser(user?.uid);
   const displayName = user?.displayName ?? profile?.name ?? 'there';
   const stats = profile ?? { points: 0, streakDays: 0, challengesEntered: 0, challengesWon: 0 };
   const active = challenges.filter((ch) => ch.status === 'running' || ch.status === 'judging');
@@ -48,7 +44,7 @@ export default function ParticipantDashboard() {
         </Typography>
         <Typography
           variant="h1"
-          sx={{ fontSize: 'clamp(32px, 4.6vw, 52px)', color: c.onPrimaryContainer, mb: 1.5, textWrap: 'balance' }}
+          sx={{ fontSize: { xs: 32, md: 52 }, color: c.onPrimaryContainer, mb: 1.5, textWrap: 'balance' }}
         >
           {active.length} deadline{active.length === 1 ? '' : 's'}
           <br />
@@ -79,7 +75,18 @@ export default function ParticipantDashboard() {
         </Stack>
       </Hero>
 
-      <QueryBoundary isLoading={isLoading} error={error}>
+      <QueryBoundary
+        isLoading={isLoading}
+        error={error}
+        errorFallback={(
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+            action={<Button variant="contained" component={Link} to="/discover">Browse challenges</Button>}
+          />
+        )}
+      >
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 2, mb: 4.5 }}>
         <StatTile label="Points" value={stats.points.toLocaleString()} icon="bolt" />
         <StatTile label="Day streak" value={stats.streakDays} icon="local_fire_department" />
@@ -121,7 +128,7 @@ export default function ParticipantDashboard() {
               >
                 <Box sx={{ flex: 1, minWidth: 240 }}>
                   <Stack direction="row" alignItems="center" gap={1.25} flexWrap="wrap" sx={{ mb: 1 }}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>{ch.title}</Typography>
+                    <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>{ch.title}</Typography>
                     <StatusPill status={ch.status} />
                   </Stack>
                   <Typography sx={{ fontSize: 13, color: c.inkMuted, mb: 2.25 }}>
@@ -154,13 +161,23 @@ export default function ParticipantDashboard() {
       <SectionLabel action={<Button size="small" variant="text" component={Link} to="/discover">Browse all</Button>}>
         Open for registration
       </SectionLabel>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2, mb: 4.5 }}>
-        {open.map((ch) => (
-          <ChallengeCard key={ch.id} challenge={ch} to={`/c/${ch.slug}`} />
-        ))}
-      </Box>
+      {open.length === 0 ? (
+        <Box sx={{ mb: 4.5 }}>
+          <EmptyState
+            icon="event_busy"
+            title="No challenges running"
+            body="There are no public challenges open right now. Check back soon."
+          />
+        </Box>
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 2, mb: 4.5 }}>
+          {open.map((ch) => (
+            <ChallengeCard key={ch.id} challenge={ch} to={`/c/${ch.slug}`} />
+          ))}
+        </Box>
+      )}
 
-      <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceContainer, p: 3 }}>
+      <Box sx={{ borderRadius: `${radius.card}px`, background: c.surfaceContainer, p: 3, mt: 0.5 }}>
         <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ mb: 2.25 }}>
           <Typography variant="h6">Recent awards</Typography>
           <Button size="small" variant="text" component={Link} to="/me/achievements">All awards</Button>

@@ -4,12 +4,13 @@ import {
   Box, Button, CircularProgress, Dialog, DialogActions, DialogContent,
   Stack, Typography,
 } from '@mui/material';
+import { motion } from 'motion/react';
 import { Icon } from '@shared/ui/Icon';
 import { DriveLinkInput } from '@shared/ui/DriveLinkInput';
-import { useChallengeBySlug, useFormSchemas, useSubmissions } from '@core/firebase/hooks';
+import { useChallengeBySlug, usePublishedFormSchemas, useSubmissions } from '@core/firebase/hooks';
 import { useSubmitEntry } from '@core/firebase/mutations';
 import { useAuth } from '@core/auth';
-import { demoOrgId } from '@core/firebase/app';
+import { defaultOrgId } from '@core/firebase/app';
 import { NotSignedInError } from '@core/sync';
 import { FormRenderer, useFormEngine } from '@shared/ui/forms/FormRenderer';
 import { UploadProvider } from '@shared/ui/forms/UploadContext';
@@ -17,6 +18,7 @@ import { stripHiddenAnswers } from '@core/forms/conditions';
 import { parseDriveLink, driveFileRef } from '@core/drive/links';
 import { EmptyState, Tag, ListSkeleton, containerSx } from '@shared/ui/primitives';
 import { c, radius } from '@shared/design/tokens';
+import { quickSpring, successPopMotion } from '@shared/ui/motion';
 
 /**
  * S-56 — Submit your entry. ROADMAP 1.10.
@@ -40,7 +42,7 @@ export default function SubmitScreen() {
   const { slug } = useParams();
   const { user } = useAuth();
   const { data: challenge, isLoading } = useChallengeBySlug(slug);
-  const { data: schemas = {} } = useFormSchemas();
+  const { data: schemas = {} } = usePublishedFormSchemas();
   const { data: submissions = [] } = useSubmissions(challenge?.id);
   const schema = challenge ? schemas[challenge.formSchemaId] : undefined;
 
@@ -126,7 +128,7 @@ export default function SubmitScreen() {
           <Typography noWrap sx={{ fontSize: 12, color: c.inkFaint }}>
             Submission · {challenge.title}
           </Typography>
-          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.01em' }}>
+          <Typography noWrap sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>
             Your entry
           </Typography>
         </Box>
@@ -164,7 +166,13 @@ export default function SubmitScreen() {
       )}
 
       <Box sx={{ height: 6, borderRadius: '3px', background: c.track, overflow: 'hidden', mb: 4 }}>
-        <Box sx={{ height: '100%', width: `${engine.percent}%`, background: c.accent, transition: 'width 300ms cubic-bezier(.2,0,0,1)' }} />
+        <Box
+          component={motion.div}
+          initial={false}
+          animate={{ width: `${engine.percent}%` }}
+          transition={quickSpring}
+          sx={{ height: '100%', background: c.accent }}
+        />
       </Box>
 
       <Box sx={{ mb: 4 }}>
@@ -187,7 +195,7 @@ export default function SubmitScreen() {
           so it arrives as context. See shared/ui/forms/UploadContext.tsx. */}
       <UploadProvider
         value={{
-          orgId: demoOrgId(),
+          orgId: defaultOrgId(),
           challengeId: challenge?.id ?? '',
           getIdToken: () => (user ? user.getIdToken() : Promise.resolve(null)),
         }}
@@ -239,11 +247,18 @@ export default function SubmitScreen() {
       <Dialog open={done} onClose={() => setDone(false)} maxWidth="xs" fullWidth>
         <DialogContent sx={{ textAlign: 'center', py: 4.5, px: 3.5 }}>
           <Box sx={{ display: 'grid', placeItems: 'center', mb: 2.25 }}>
-            <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center', animation: 'pop 420ms cubic-bezier(.2,0,0,1) both' }}>
+            <Box
+              component={motion.div}
+              variants={successPopMotion}
+              initial="initial"
+              animate="animate"
+              transition={quickSpring}
+              sx={{ width: 72, height: 72, borderRadius: '50%', background: c.success, display: 'grid', placeItems: 'center' }}
+            >
               <Icon name="check" size={40} fill color={c.successInk} />
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.02em', mb: 1.25 }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: 0, mb: 1.25 }}>
             Entry submitted
           </Typography>
           <Typography sx={{ fontSize: 15, lineHeight: 1.55, color: c.inkMuted, mb: 2 }}>

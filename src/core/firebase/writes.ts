@@ -194,6 +194,10 @@ export interface ChallengeInput {
   teamsEnabled: boolean;
   maxTeamSize: number;
   leaderboardMode: 'hidden' | 'live' | 'afterClose' | 'public';
+  seriesId: string | null;
+  seriesName: string | null;
+  seriesLeaderboardEnabled: boolean;
+  seriesPointsWeight: number;
   /** Carries the workflow rules the stage designer sets. See core/workflow. */
   stages: Stage[];
   timeline: {
@@ -241,6 +245,10 @@ export async function writeChallenge(input: ChallengeInput, userId: string, isNe
     teamsEnabled: input.teamsEnabled,
     maxTeamSize: input.maxTeamSize,
     leaderboardMode: input.leaderboardMode,
+    seriesId: input.seriesId,
+    seriesName: input.seriesName,
+    seriesLeaderboardEnabled: input.seriesLeaderboardEnabled,
+    seriesPointsWeight: input.seriesPointsWeight,
     stages: input.stages,
     timeline: {
       registrationClosesAt: toTimestamp(input.timeline.registrationClosesAt),

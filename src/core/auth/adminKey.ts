@@ -32,7 +32,7 @@ import { env } from '@config/env';
  *  left open on a shared machine is not. */
 export const UNLOCK_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours — one working day.
 
-const STORAGE_KEY = 'forge.admin.unlock';
+const STORAGE_KEY = 'podium.admin.unlock';
 
 /** The configured key. Set `VITE_ADMIN_SECRET` to change it per deployment. */
 export const adminKey = () => env().VITE_ADMIN_SECRET;

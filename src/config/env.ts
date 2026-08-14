@@ -17,8 +17,8 @@ const EnvSchema = z.object({
   VITE_FIREBASE_MESSAGING_SENDER_ID: z.string().min(1),
   VITE_FIREBASE_APP_ID: z.string().min(1),
 
-  /** The organization the public demo reads from. See ADR-016. */
-  VITE_DEMO_ORG_ID: z.string().min(1).default('org_demo'),
+  /** Default tenant for this single-organization deployment. */
+  VITE_DEFAULT_ORG_ID: z.string().min(1, 'Default organization ID is required'),
 
   /**
    * The key that reveals the admin panel (`/admin`). See ADR-024.
@@ -30,7 +30,7 @@ const EnvSchema = z.object({
    * env rather than in the source so a deployment can change it without a code
    * edit, and so it is one variable to rotate.
    */
-  VITE_ADMIN_SECRET: z.string().min(1).default('FORGE2026'),
+  VITE_ADMIN_SECRET: z.string().min(1).default('PODIUM2026'),
 
   /** Point the SDK at a local emulator suite instead of production. */
   VITE_USE_EMULATOR: z

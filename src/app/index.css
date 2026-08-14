@@ -5,7 +5,7 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
-/* Colour values mirror src/app/tokens.ts. Keep the two in step. */
+/* Original pre-onboarding Podium palette. */
 :root {
   --surface: #fdf8ec;
   --surface-card: #fffdf6;
@@ -15,7 +15,11 @@
   --ink-muted: #4b4739;
   --primary: #f3dc85;
   --accent: #e5cb63;
+  --material: rgba(253, 248, 236, .92);
+  --focus-ring: rgba(91, 74, 0, .3);
+  --track-strong: #e3d9bf;
   color-scheme: light;
+  font-synthesis: none;
 }
 
 html,
@@ -26,9 +30,39 @@ body,
 
 body {
   margin: 0;
-  font-family: Figtree, system-ui, -apple-system, sans-serif;
+  font-family: Figtree, 'Manrope Variable', Manrope, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
   background: var(--surface);
+  color: var(--ink);
+}
+
+a,
+button,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button,
+.MuiButtonBase-root {
+  transform-origin: center;
+}
+
+button:active:not(:disabled),
+.MuiButtonBase-root:active:not(.Mui-disabled) {
+  transform: scale(0.97);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(243, 220, 133, .82);
   color: var(--ink);
 }
 
@@ -76,7 +110,7 @@ input[type='range'] {
 input[type='range']::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
-  background: #e3d9bf;
+  background: var(--track-strong);
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -86,20 +120,20 @@ input[type='range']::-webkit-slider-thumb {
   background: var(--accent);
   margin-top: -6px;
   border: 2px solid var(--surface-card);
-  box-shadow: 0 1px 3px rgba(60, 50, 10, 0.28);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
 }
 
 /* ---------- scrollbars ---------- */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #dcd3bb transparent;
+  scrollbar-color: #a3a3a3 transparent;
 }
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #dcd3bb;
+  background: #a3a3a3;
   border-radius: 8px;
   border: 3px solid transparent;
   background-clip: content-box;
@@ -108,54 +142,7 @@ input[type='range']::-webkit-slider-thumb {
   background: transparent;
 }
 
-/* ---------- motion ----------
-   Names match the design source so the two can be diffed. */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes sheetUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-@keyframes snackUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* ---------- motion ---------- */
 @keyframes shimmer {
   0% {
     background-position: -380px 0;
@@ -164,34 +151,9 @@ input[type='range']::-webkit-slider-thumb {
     background-position: 380px 0;
   }
 }
-@keyframes floaty {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0);
-  }
-  50% {
-    transform: translate(-14px, 10px) rotate(6deg);
-  }
-}
-@keyframes pop {
-  0% {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
 
-.rise {
-  animation: fadeUp 320ms cubic-bezier(0.2, 0, 0, 1) both;
-}
 .shimmer {
-  background: linear-gradient(90deg, #f2ead6 8%, #f8f1e0 18%, #f2ead6 33%);
+  background: linear-gradient(90deg, var(--surface-container) 8%, var(--surface-card) 18%, var(--surface-container) 33%);
   background-size: 800px 100%;
   animation: shimmer 1.4s linear infinite;
 }
@@ -203,5 +165,25 @@ input[type='range']::-webkit-slider-thumb {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .podium-material {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .podium-material {
+    background: var(--surface) !important;
+    border-color: var(--ink) !important;
+  }
+
+  :focus-visible {
+    outline-color: currentColor;
+    outline-width: 4px;
   }
 }

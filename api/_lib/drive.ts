@@ -239,7 +239,7 @@ export async function challengeFolder(
  * which is the main reason uploading is better than pasting.
  *
  * `anyone/reader` and not something narrower because judging is anonymous to
- * Google: judges are Forge accounts, not Drive accounts, and the app has no
+ * Google: judges are Podium accounts, not Drive accounts, and the app has no
  * list of their Google identities to grant to.
  */
 export async function shareAndDescribe(
