@@ -16,8 +16,8 @@ import { fetchChallengeSnapshot, hydrateFromChallenge } from './snapshot';
 export const useOrg = (orgId = defaultOrgId()) =>
   useQuery({ queryKey: qk.org(orgId), queryFn: () => q.fetchOrg(orgId) });
 
-export const useWorkspaces = (orgId = defaultOrgId()) =>
-  useQuery({ queryKey: qk.workspaces(orgId), queryFn: () => q.fetchWorkspaces(orgId) });
+export const useWorkspaces = (orgId = defaultOrgId(), enabled = true) =>
+  useQuery({ queryKey: qk.workspaces(orgId), queryFn: () => q.fetchWorkspaces(orgId), enabled });
 
 export const useChallenges = (orgId = defaultOrgId()) =>
   useQuery({ queryKey: qk.challenges(orgId), queryFn: () => q.fetchChallenges(orgId) });

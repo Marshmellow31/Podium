@@ -51,7 +51,8 @@ npm.cmd run remove-demo-data -- --apply
 ```
 
 The script removes only fixed legacy fixture IDs. It does not delete the
-organization, roles, invitations, or unrelated registrations and submissions.
+organization, roles, invitations, unrelated registrations and submissions, or
+snapshots belonging to non-fixture challenges.
 
 ## Rollback triggers
 

@@ -6,8 +6,8 @@
 
 ---
 
-**Last updated:** 2026-08-04
-**Updated by:** Agent (administrative participation and role-assignment hardening)
+**Last updated:** 2026-08-14
+**Updated by:** Codex (PR #2 release review)
 **Current phase:** **Phases 0, 1 and 2 complete.** Phase 3 is blocked on Blaze, not effort
 **Repo state:** 18 screens on live Firestore (project forge-4d40a, org_demo seeded); the app now **writes**
 **Build health:** typecheck clean · lint clean (0 errors, 0 warnings) ·
@@ -15,6 +15,12 @@
 clean, service worker generated · no route renders `NotBuiltYet` any more
 **Rules + indexes are DEPLOYED to `forge-4d40a`** (2026-07-29) and reads were
 re-verified against them afterwards.
+
+**PR #2 release review (2026-08-14).** Signed-out discovery, public challenge
+details, public leaderboards, and certificate verification are routed through a
+minimal public shell; account-specific mutations remain authenticated. The
+legacy cleanup utility now deletes only the fixed snapshot IDs created by the
+old seed instead of every snapshot in the target organization.
 
 **Access-control hardening (2026-08-04).** Owner/admin memberships can manage
 competitions but cannot create registrations or submissions for themselves;

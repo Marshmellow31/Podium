@@ -34,6 +34,7 @@ const fixedDocs = {
   auditLogs: ['a1', 'a2', 'a3', 'a4', 'a5'],
 } as const;
 const certificates = ['cert_a1b2c3', 'cert_d4e5f6', 'cert_g7h8i9', 'cert_j1k2l3'];
+const snapshots = ['index', ...challengeIds.map((id) => `challenge_${id}`)];
 
 async function deleteCollection(path: string) {
   const snap = await db.collection(path).get();
@@ -60,7 +61,9 @@ async function main() {
     for (const child of challengeChildren) found += await deleteCollection(`${base}/${child}`);
     if (await removeDoc(base)) found += 1;
   }
-  found += await deleteCollection(`organizations/${ORG_ID}/snapshots`);
+  // Snapshots may also be created for real challenges. Remove only the fixed
+  // documents produced by the legacy seed, just like every other collection.
+  for (const id of snapshots) if (await removeDoc(`organizations/${ORG_ID}/snapshots/${id}`)) found += 1;
   for (const [collection, ids] of Object.entries(fixedDocs)) {
     for (const id of ids) if (await removeDoc(`organizations/${ORG_ID}/${collection}/${id}`)) found += 1;
   }

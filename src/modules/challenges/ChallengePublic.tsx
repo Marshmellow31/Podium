@@ -5,6 +5,7 @@ import { useChallengeBySlug, useOrg, useWorkspaces, usePublishedFormSchemas, use
 import { EmptyState, Blobs, Tag, ListSkeleton } from '@shared/ui/primitives';
 import { allFields } from '@core/forms/compiler';
 import { c, radius, coverFor, mono, shadow } from '@shared/design/tokens';
+import { useAuth } from '@core/auth';
 
 const STAGE_LOOK = {
   done: { bg: c.success, fg: c.successInk, border: 'transparent', icon: 'check', fill: true },
@@ -16,9 +17,12 @@ const STAGE_LOOK = {
 export default function ChallengePublic() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: ch, isLoading } = useChallengeBySlug(slug);
   const { data: org } = useOrg();
-  const { data: workspaces = [] } = useWorkspaces();
+  // Workspace documents are member-only. Public visitors do not need this
+  // optional label, so do not issue a query the rules will correctly reject.
+  const { data: workspaces = [] } = useWorkspaces(undefined, Boolean(user));
   const { data: schemas = {} } = usePublishedFormSchemas();
   const { data: rubric = [] } = useRubric(ch?.id);
 
