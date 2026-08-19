@@ -95,8 +95,7 @@ Components never import `firebase/firestore` — ESLint forbids it. Every read a
 write is scoped under `organizations/{orgId}/…`, so a forgotten filter cannot leak
 another tenant's data; it is a structural property of the path, not a discipline.
 
-Participant-facing writes enqueue through `core/sync`, so they survive going
-offline. The app is an installable PWA with a Workbox service worker.
+Participant-facing writes enqueue through `core/sync`, storing unsent mutations in IndexedDB so submissions, registrations, and votes survive loss of network connectivity and automatically replay upon reconnection. The application is a fully installable Progressive Web App (PWA) powered by `vite-plugin-pwa` and Workbox, utilizing a Cache-First strategy for static assets and Network-First with cache fallback for dynamic content.
 
 ### Where images come from
 
@@ -250,16 +249,38 @@ These do not block merging the branch:
 
 ## Running it locally
 
+### Prerequisites
+
+* **Node.js** — v18.x or v20.x+ (LTS recommended)
+* **npm** — v9.x or higher
+* **Java JDK** — OpenJDK 21 or higher (required **only** if running Firebase Emulators for security rules or Cloud Functions tests)
+
+### Environment Configuration
+
+Copy `.env.example` to `.env.local` and fill in your Firebase project configuration:
+
 ```bash
-npm install
+cp .env.example .env.local
 ```
 
-Copy `.env.example` to `.env.local` and fill in your Firebase web config. These
-values are **public** by design — they ship in the client bundle, and access is
-controlled by `firestore.rules`, not by hiding them. Full walkthrough in
-[DEPLOY.md](DEPLOY.md).
+| Environment Variable | Required | Description |
+|---|---|---|
+| `VITE_FIREBASE_API_KEY` | Yes | Firebase Web API Key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Yes | Firebase Auth Domain (`<project-id>.firebaseapp.com`) |
+| `VITE_FIREBASE_PROJECT_ID` | Yes | Firebase Project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Yes | Firebase Storage Bucket domain |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Yes | Firebase Cloud Messaging Sender ID |
+| `VITE_FIREBASE_APP_ID` | Yes | Firebase Web App ID |
+| `VITE_DEFAULT_ORG_ID` | No | Default Organization ID for single-tenant / deep-link fallback |
+| `VITE_USE_EMULATOR` | No | Set to `true` to target local Firebase Emulators (`localhost:8080`) |
+| `VITE_ADMIN_SECRET` | No | Secret key controlling access to `/admin` route preview |
+
+*Note: These values are public by design — they ship in the client bundle, and access control is strictly enforced by `firestore.rules`.*
+
+### Setup and Development
 
 ```bash
+npm install
 npm run dev
 ```
 
