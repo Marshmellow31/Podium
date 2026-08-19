@@ -336,6 +336,42 @@ app  ──▶  modules  ──▶  core  ──▶  shared
 
 ---
 
+## Security & Data Privacy
+
+1. **Structural Multi-Tenant Isolation**: Data is partitioned under `organizations/{orgId}/...`. Firestore Security Rules validate `request.auth.uid` against membership documents stored under that specific org tree.
+2. **Formula Injection & PII Protection**: CSV exports escape formulas (e.g. `=`, `+`, `-`, `@`) to prevent spreadsheet injection vulnerabilities. PII columns are dynamically redacted unless the requesting account holds export permissions.
+3. **Immutability of Form Schemas**: Published challenge forms cannot be altered in-place. Editing creates an immutable version snapshot (`v2`, `v3`) ensuring past submission integrity.
+
+---
+
+## Deployment & Hosting Setup
+
+### Vercel Deployment
+
+Deploying the frontend to Vercel requires configuring environment variables (`VITE_FIREBASE_*`) and utilizing `vercel.json` for headers:
+
+* **Static Hashed Assets (`/assets/*`)**: Cached aggressively with `Cache-Control: public, max-age=31536000, immutable`.
+* **PWA Service Worker (`sw.js`)**: Configured with `Cache-Control: no-cache, no-store, must-revalidate` to ensure immediate client updates when a new version deploys.
+
+### Firebase Deployment Safeguards
+
+```bash
+# Recommended deployment command (Spark plan compatible):
+npm run rules:deploy
+```
+
+*Never use bare `firebase deploy` on Spark plan projects, as functions build triggers will fail the deployment process.*
+
+---
+
+## Troubleshooting & Common Gotchas
+
+* **Google Drive Image 404 / Broken Thumbnail**: Ensure Google Drive files are explicitly set to *Anyone with the link can view*. Personal session URLs containing `/u/2/` or `usp=drive_web` will fail thumbnail rendering.
+* **Security Rules Test Failures (`test:rules`)**: Local rules tests rely on Java JDK 21. Ensure `JAVA_HOME` points to JDK 21+ if tests report emulator process spawn errors.
+* **Cloud Functions Deployment Errors**: Cloud Functions deployment requires upgrading Firebase project to the **Blaze** (pay-as-you-go) plan. On Spark, function endpoints run locally via emulator suite (`npm run test:functions`).
+
+---
+
 ## Documentation
 
 | Doc | What it answers |
