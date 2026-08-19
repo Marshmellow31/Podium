@@ -277,56 +277,43 @@ cp .env.example .env.local
 
 *Note: These values are public by design — they ship in the client bundle, and access control is strictly enforced by `firestore.rules`.*
 
-### Setup and Development
-
-```bash
-npm install
-npm run dev
-```
+### Available Scripts & Commands
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Vite dev server |
-| `npm run build` | Production build + PWA service worker |
-| `npm run verify` | typecheck + lint + unit tests |
-| `npm run test:rules` | Security rules against the Firestore emulator (**needs JDK 21**) |
-| `npm run test:functions` | Cloud Functions against the emulator (**needs JDK 21**) |
-| `npm run rules:deploy` | Deploy rules and indexes only |
-| `npm run seed` | Seed the demo org (needs a service-account key you provide) |
-| `npm run icons` | Regenerate PWA icons |
+| `npm run dev` | Starts Vite local development server |
+| `npm run build` | Builds production bundle & generates PWA service worker |
+| `npm run verify` | Runs TypeScript check (`tsc --noEmit`), ESLint, and Vitest suite |
+| `npm run test:rules` | Runs 75+ Firestore Security Rules unit tests against local Firestore emulator (**requires OpenJDK 21**) |
+| `npm run test:functions` | Runs Cloud Functions assertions against local emulator suite (**requires OpenJDK 21**) |
+| `npm run rules:deploy` | Deploys Firestore rules and indexes only (safe on Spark plan) |
+| `npm run seed` | Seeds demo organization data (requires valid service-account key) |
+| `npm run icons` | Regenerates PWA application icons |
 
-⚠️ Use `npm run rules:deploy`, never a bare `firebase deploy` — `firebase.json`
-declares a `functions` block so the emulator can load them, and deploying
-functions fails on Spark.
+⚠️ Use `npm run rules:deploy`, never a bare `firebase deploy` — `firebase.json` declares a `functions` block so the emulator can load them, and deploying functions fails on Spark.
 
----
+### Testing Architecture & Suites
 
-## Architecture
+1. **Unit & Engine Tests (`Vitest`)**: Validates pure engines (`core/forms`, `core/workflow`, `core/rbac`, `core/judging`) deterministically without browser or network dependencies.
+2. **Security Rules Tests (`@firebase/rules-unit-testing`)**: Verifies multi-tenant access control policies, owner permissions, and collection-group queries against an isolated Firestore emulator instance.
+3. **Cloud Functions Suite**: Validates background score aggregation triggers, counter updates, and webhook HMAC signature generation in the local emulator environment.
 
-```
-React PWA  ──▶  Firestore (+ Security Rules)  ──▶  Cloud Functions (4, minimal)
-                                                          │
-                                            Customer's own Google Drive
-```
+### Architectural Boundary Enforcement
 
-Client-heavy by design. Files never touch our infrastructure — organizations use
-their own storage quota, which is what makes a free tier possible.
-
-Four layers, strictly one-directional and **enforced by ESLint**, not convention:
+Podium strictly enforces unidirectional dependency flow through custom ESLint rules:
 
 ```
 app  ──▶  modules  ──▶  core  ──▶  shared
 ```
 
-`app/` routing and theme · `modules/` feature screens · `core/` pure engines and
-the data layer · `shared/` design tokens and reusable UI.
+* **`app/`**: Application setup, routing, and top-level theme context.
+* **`modules/`**: High-level feature screens (e.g. `challenge-editor`, `judging`, `onboarding`). **No module may import another module.**
+* **`core/`**: Pure business engines, Firebase client abstractions, offline sync queue, and domain types.
+* **`shared/`**: Reusable visual components, UI tokens, and primitive layouts.
 
-**No module imports another module.** Cross-feature needs go through `core/` or a
-shared contract type.
+*Import violations trigger build-time ESLint errors to maintain architectural modularity.*
 
-**Stack.** React 18 · Vite 6 · TypeScript strict · Tailwind v4 · MUI 6 · React
-Router · Zod · TanStack Query · Firebase Auth + Firestore · Vitest ·
-vite-plugin-pwa (Workbox) · Vercel.
+**Stack.** React 18 · Vite 6 · TypeScript strict · Tailwind v4 · MUI 6 · React Router · Zod · TanStack Query · Firebase Auth + Firestore · Vitest · vite-plugin-pwa (Workbox) · Vercel.
 
 ---
 
