@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Box, IconButton, Popover, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -110,6 +110,29 @@ export default function AppShell() {
   const { pathname } = location;
   const navigate = useNavigate();
   const [installHelpAnchor, setInstallHelpAnchor] = useState<HTMLButtonElement | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/discover?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/discover');
+    }
+  };
 
   const inOrgContext = pathname.startsWith('/org');
   const primaryLabel = inOrgContext ? 'New challenge' : 'Enter a challenge';
@@ -293,33 +316,41 @@ export default function AppShell() {
               </Stack>
             )}
             {isDesktop && (
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={1.5}
-                sx={{
-                  gridColumn: { md: '1' },
-                  width: '100%',
-                  height: 48,
-                  px: 2,
-                  borderRadius: `${radius.field}px`,
-                  background: c.surfaceField,
-                  border: `1px solid ${c.outlineSoft}`,
-                  transition: 'background 200ms',
-                  '&:hover': { background: c.surfaceFieldHover },
-                }}
+              <Box
+                component="form"
+                onSubmit={handleSearchSubmit}
+                sx={{ gridColumn: { md: '1' }, width: '100%' }}
               >
-                <Icon name="search" size={22} color={c.inkMuted} />
-                <Box
-                  component="input"
-                  placeholder="Search challenges, entries, people"
-                  aria-label="Search"
-                  sx={{ flex: 1, border: 'none', background: 'transparent', fontSize: 15, minWidth: 0 }}
-                />
-                <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: c.inkFaint, border: `1px solid ${c.outline}`, borderRadius: '6px', px: 0.75, py: 0.25 }}>
-                  ⌘K
-                </Box>
-              </Stack>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1.5}
+                  sx={{
+                    width: '100%',
+                    height: 48,
+                    px: 2,
+                    borderRadius: `${radius.field}px`,
+                    background: c.surfaceField,
+                    border: `1px solid ${c.outlineSoft}`,
+                    transition: 'background 200ms',
+                    '&:hover': { background: c.surfaceFieldHover },
+                  }}
+                >
+                  <Icon name="search" size={22} color={c.inkMuted} />
+                  <Box
+                    component="input"
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                    placeholder="Search challenges, entries, people"
+                    aria-label="Search"
+                    sx={{ flex: 1, border: 'none', background: 'transparent', fontSize: 15, minWidth: 0, outline: 'none' }}
+                  />
+                  <Box component="span" sx={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: c.inkFaint, border: `1px solid ${c.outline}`, borderRadius: '6px', px: 0.75, py: 0.25 }}>
+                    ⌘K
+                  </Box>
+                </Stack>
+              </Box>
             )}
             {!isDesktop && <Box sx={{ flex: 'none' }} />}
             <Stack
@@ -386,13 +417,12 @@ export default function AppShell() {
                 </Typography>
               </Stack>
               <Typography sx={{ fontSize: 13, lineHeight: 1.55, color: c.inkMuted }}>
-                PWA install support is planned. For now, use your browser shortcut option.
+                Podium is a Progressive Web App (PWA). You can install it on your device for fast, full-screen offline-ready access.
               </Typography>
               <Box component="ol" sx={{ m: 0, pl: 2.25, color: c.inkBody, fontSize: 13, lineHeight: 1.65 }}>
-                <li>Open Podium in Chrome or Edge.</li>
-                <li>Choose the browser menu.</li>
-                <li>Select <Box component="strong">Save and share</Box>, then <Box component="strong">Create shortcut</Box>.</li>
-                <li>Enable <Box component="strong">Open as window</Box>, then create it.</li>
+                <li>In Chrome or Edge, click the <Box component="strong">Install</Box> button in the address bar.</li>
+                <li>On iOS Safari, tap <Box component="strong">Share</Box> and choose <Box component="strong">Add to Home Screen</Box>.</li>
+                <li>Launch Podium anytime directly from your desktop or home screen.</li>
               </Box>
             </Stack>
           </Popover>

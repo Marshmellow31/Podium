@@ -63,3 +63,6 @@ functions/node_modules
 # config is recreated locally by whatever harness needs it and should not
 # come back into version control and undo that.
 /.claude/
+
+# Local personal files
+dashboard.html

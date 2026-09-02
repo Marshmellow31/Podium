@@ -42,6 +42,7 @@ export default function MyEntries() {
   const rows = registrations.filter((entry) => {
     if (tab === 'active') return entry.status === 'pending' || entry.status === 'active';
     if (tab === 'judged') return entry.status === 'winner' || entry.status === 'eliminated';
+    if (tab === 'archived') return entry.status === 'withdrawn' || entry.status === 'disqualified';
     return false;
   });
 

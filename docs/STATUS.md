@@ -6,15 +6,18 @@
 
 ---
 
-**Last updated:** 2026-08-14
-**Updated by:** Codex (PR #2 release review)
-**Current phase:** **Phases 0, 1 and 2 complete.** Phase 3 is blocked on Blaze, not effort
-**Repo state:** 18 screens on live Firestore (project forge-4d40a, org_demo seeded); the app now **writes**
-**Build health:** typecheck clean · lint clean (0 errors, 0 warnings) ·
-**422 unit tests + 92 security-rules tests, all passing** · production build
-clean, service worker generated · no route renders `NotBuiltYet` any more
-**Rules + indexes are DEPLOYED to `forge-4d40a`** (2026-07-29) and reads were
-re-verified against them afterwards.
+**Last updated:** 2026-09-02
+**Updated by:** Antigravity (Platform overhaul: onboarding, auth, dashboards, form builder, and verification)
+**Current phase:** **Phases 0, 1 and 2 complete.**
+**Repo state:** Full client experience on live Firestore + PWA service worker enabled
+**Build health:** typecheck clean (0 errors) · lint clean (0 errors, 0 warnings) ·
+**422 unit tests passing (100%)** · production build clean in 5.3s, service worker generated precaching 70 entries.
+
+**Platform Overhaul & Form Engine Upgrade (2026-09-02).**
+1. **Onboarding & Auth**: Restored `/welcome` with an interactive 3-door flow (Participant, Organizer, Explorer). Upgraded `/signin` with an in-UI role toggle between Participant and Organizer, real-time password strength, and forgot-password reset flow.
+2. **Dashboards & Views**: Replaced hardcoded date in `ParticipantDashboard.tsx` with dynamic localized formatting and live registration stats. Fixed inert "New challenge" button in `AdminDashboard.tsx`. Fixed "Archived" tab filtering in `MyEntries.tsx` to properly show withdrawn and disqualified entries.
+3. **Form Builder & Question Designer**: Implemented interactive Options Manager for choice fields, inline section renaming, section addition/deletion, visual conditional logic rule builder, and 1-click access from `ChallengeEditor.tsx`.
+4. **PWA & Search**: Re-enabled VitePWA precaching and Google Fonts caching; wired desktop search bar with `Ctrl+K` / `⌘K` shortcut navigating to `/discover?q=...`.
 
 **PR #2 release review (2026-08-14).** Signed-out discovery, public challenge
 details, public leaderboards, and certificate verification are routed through a

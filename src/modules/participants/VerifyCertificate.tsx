@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
+import { PodiumMark } from '@shared/ui/PodiumMark';
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
 import { EmptyState, Eyebrow, Tag, panelSx, Blobs } from '@shared/ui/primitives';
 import { useCertificates } from '@core/firebase/hooks';
@@ -25,8 +26,27 @@ export default function VerifyCertificate() {
   const certificate = certificates.find((c2) => c2.id === certId);
 
   return (
-    <Box sx={{ maxWidth: 620, mx: 'auto' }}>
-      <Eyebrow>Certificate verification</Eyebrow>
+    <Box sx={{ minHeight: '100vh', background: c.surface, color: c.ink, px: { xs: 2.5, md: 4 }, py: 3 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={1.5}
+        sx={{ maxWidth: 620, mx: 'auto', mb: 3 }}
+      >
+        <Box
+          component={Link}
+          to="/"
+          sx={{ display: 'flex', alignItems: 'center', gap: 1.25, textDecoration: 'none', color: 'inherit' }}
+        >
+          <PodiumMark size={28} radius={8} />
+          <Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: 0 }}>Podium</Typography>
+        </Box>
+        <Box sx={{ flex: 1 }} />
+        <Button component={Link} to="/discover" variant="text" size="small">Discover</Button>
+      </Stack>
+
+      <Box sx={{ maxWidth: 620, mx: 'auto' }}>
+        <Eyebrow>Certificate verification</Eyebrow>
 
       <QueryBoundary isLoading={isLoading} error={error}>
         {!certificate ? (
@@ -99,6 +119,7 @@ export default function VerifyCertificate() {
           </>
         )}
       </QueryBoundary>
+      </Box>
     </Box>
   );
 }

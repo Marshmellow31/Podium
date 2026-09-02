@@ -524,17 +524,21 @@ export default function ChallengeEditor() {
             />
           </Stack>
 
-          {draft.formSchemaId && !isNew && (
+          {draft.formSchemaId && !isNew ? (
             <Button
               component={Link}
               to={`/org/challenges/${draft.id}/form`}
               variant="outlined"
-              startIcon={<Icon name="edit_note" size={20} />}
+              startIcon={<Icon name="dynamic_form" size={20} />}
               sx={{ alignSelf: 'flex-start' }}
             >
-              Edit the questions
+              Open question builder
             </Button>
-          )}
+          ) : isNew ? (
+            <Typography sx={{ fontSize: 13, color: c.inkMuted, fontStyle: 'italic' }}>
+              Save your draft challenge first to customize questions in the visual Form Builder.
+            </Typography>
+          ) : null}
         </Stack>
       )}
 

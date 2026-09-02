@@ -96,7 +96,7 @@ export interface Registration {
   name: string;
   email: string;
   avatarColor: string;
-  status: 'pending' | 'active' | 'eliminated' | 'winner';
+  status: 'pending' | 'active' | 'withdrawn' | 'disqualified' | 'eliminated' | 'winner';
   currentStageKey: string;
   registeredAt: string;
   checkedIn: boolean;

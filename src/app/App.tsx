@@ -4,6 +4,7 @@ import { Box, CircularProgress } from '@mui/material';
 import AppShell from './layouts/AppShell';
 import PublicLayout from './layouts/PublicLayout';
 import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { PwaPrompts } from '@shared/ui/PwaPrompts';
 import { c } from '@shared/design/tokens';
 import { useAuth } from '@core/auth';
 
@@ -16,6 +17,7 @@ import { useAuth } from '@core/auth';
  * round-trip.
  */
 const Landing = lazy(() => import('@modules/discovery/Landing'));
+const Welcome = lazy(() => import('@modules/onboarding/Welcome'));
 const SignIn = lazy(() => import('@modules/auth/SignIn'));
 /**
  * Both halves of `/admin` are lazy, and that is load-bearing rather than
@@ -91,23 +93,23 @@ export default function App() {
 
   return (
     <ErrorBoundary resetKey={pathname}>
+      <PwaPrompts />
       <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        {/* Public catalog routes stay reachable without an account. Writes and
-            personal data remain behind RequireAuth and Firestore rules. */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/welcome" element={<Navigate to="/signin" replace />} />
+        <Routes>
+          {/* Signed-out visitors see landing, onboarding, public org profiles, certificate verifications, or signin. */}
+          <Route path="/" element={<Landing />} />
+        <Route path="/welcome" element={<Welcome />} />
         {/* Sign-in is its own full-bleed screen: the shell's nav and search are
             chrome for someone who is already in. */}
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/o/:slug" element={<PublicOrgPage />} />
+        <Route path="/verify/:certId" element={<VerifyCertificate />} />
+
         <Route element={<PublicLayout />}>
           <Route path="/discover" element={<Discover />} />
           <Route path="/c/:slug" element={<ChallengePublic />} />
           <Route path="/c/:slug/leaderboard" element={<Leaderboard />} />
-          <Route path="/verify/:certId" element={<VerifyCertificate />} />
         </Route>
-
-        <Route path="/o/:slug" element={<RequireAuth><PublicOrgPage /></RequireAuth>} />
 
         <Route element={<RequireAuth><AppShell /></RequireAuth>}>
           {/* For you */}

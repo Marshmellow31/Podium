@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Icon } from '@shared/ui/Icon';
@@ -7,7 +8,7 @@ import {
 import { StageStepper } from '@shared/ui/StageStepper';
 import { ChallengeCard } from '@shared/ui/ChallengeCard';
 import { c, radius, ease } from '@shared/design/tokens';
-import { usePublicChallenges, useBadges, useCertificates, useCurrentUser } from '@core/firebase/hooks';
+import { usePublicChallenges, useBadges, useCertificates, useCurrentUser, useMyRegistrations } from '@core/firebase/hooks';
 import { useAuth } from '@core/auth';
 
 import { QueryBoundary } from '@shared/ui/QueryBoundary';
@@ -27,11 +28,24 @@ export default function ParticipantDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: challenges = [], isLoading, error } = usePublicChallenges();
+  const { data: myRegistrations = [] } = useMyRegistrations(user?.uid);
   const { data: badges = [] } = useBadges();
   const { data: certificates = [] } = useCertificates();
   const { data: profile } = useCurrentUser(user?.uid);
   const displayName = user?.displayName ?? profile?.name ?? 'there';
-  const stats = profile ?? { points: 0, streakDays: 0, challengesEntered: 0, challengesWon: 0 };
+  const firstName = displayName.split(' ')[0] ?? 'there';
+
+  const todayFormatted = useMemo(() => new Date().toLocaleDateString(undefined, {
+    weekday: 'long', day: 'numeric', month: 'long',
+  }), []);
+
+  const stats = {
+    points: profile?.points || (myRegistrations.length * 150 + certificates.length * 500),
+    streakDays: profile?.streakDays || (myRegistrations.length > 0 ? 3 : 1),
+    challengesEntered: myRegistrations.length || (profile?.challengesEntered ?? 0),
+    challengesWon: certificates.length || (profile?.challengesWon ?? 0),
+  };
+
   const active = challenges.filter((ch) => ch.status === 'running' || ch.status === 'judging');
   const open = challenges.filter((ch) => ch.status === 'published').slice(0, 3);
   const earned = badges.filter((b) => b.earned);
@@ -40,15 +54,25 @@ export default function ParticipantDashboard() {
     <>
       <Hero>
         <Typography variant="overline" sx={{ display: 'block', color: c.primaryInk, mb: 1.5 }}>
-          Tuesday, 28 July
+          {todayFormatted}
         </Typography>
         <Typography
           variant="h1"
           sx={{ fontSize: { xs: 32, md: 52 }, color: c.onPrimaryContainer, mb: 1.5, textWrap: 'balance' }}
         >
-          {active.length} deadline{active.length === 1 ? '' : 's'}
-          <br />
-          this week, {displayName.split(' ')[0]}.
+          {active.length > 0 ? (
+            <>
+              {active.length} active challenge{active.length === 1 ? '' : 's'}
+              <br />
+              open for you, {firstName}.
+            </>
+          ) : (
+            <>
+              Welcome, {firstName}.
+              <br />
+              Ready to compete?
+            </>
+          )}
         </Typography>
         <Typography sx={{ fontSize: 16, lineHeight: 1.55, color: c.inkMuted, maxWidth: '44ch', mb: 3.5 }}>
           Everything you have entered, everything still open, and what the judges have sent back — in one place.

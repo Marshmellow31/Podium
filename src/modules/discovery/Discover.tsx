@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Box, Button, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Icon } from '@shared/ui/Icon';
@@ -11,10 +12,18 @@ import { c, radius, ease } from '@shared/design/tokens';
 /** S-03 — Discover. Filter chips are the design's primary control. */
 export default function Discover() {
   const { data: challenges = [], isLoading, error } = usePublicChallenges();
-  const [q, setQ] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [q, setQ] = useState(() => searchParams.get('q') ?? '');
   const [cat, setCat] = useState('All');
   const theme = useTheme();
   const isMobile = !useMediaQuery(theme.breakpoints.up('md'));
+
+  useEffect(() => {
+    const urlQ = searchParams.get('q');
+    if (urlQ !== null) {
+      setQ((current) => (current !== urlQ ? urlQ : current));
+    }
+  }, [searchParams]);
 
   const CATEGORIES = useMemo(
     () => ['All', ...new Set(challenges.map((ch) => ch.category))],
@@ -36,6 +45,7 @@ export default function Discover() {
   const clear = () => {
     setQ('');
     setCat('All');
+    setSearchParams({});
   };
 
   return (

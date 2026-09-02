@@ -13,33 +13,36 @@ import {
 import { c, ease, radius, shadow } from '@shared/design/tokens';
 
 type Tab = 'signin' | 'signup';
+type RoleIntent = 'participant' | 'organizer';
 
-/** A compact customer account screen. Organization roles are resolved after sign-in. */
+/** A comprehensive account authentication screen supporting both Participants and Organizers. */
 export default function SignIn() {
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const adminSignIn = params.get('as') === 'admin';
+  const initialAdmin = params.get('as') === 'admin';
   const {
     user, ready, busy, error, notice, clearMessages,
     signInEmail, signUpEmail, signInGoogle, resetPassword, mode, setMode,
   } = useAuth();
 
-  const [tab, setTab] = useState<Tab>(!adminSignIn && params.get('mode') === 'signup' ? 'signup' : 'signin');
+  const [roleIntent, setRoleIntent] = useState<RoleIntent>(initialAdmin ? 'organizer' : 'participant');
+  const [tab, setTab] = useState<Tab>(params.get('mode') === 'signup' ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [showForgotDialog, setShowForgotDialog] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
-  const destination = adminSignIn ? '/org' : '/home';
+  const destination = roleIntent === 'organizer' ? '/org' : '/home';
 
   useEffect(() => {
     if (!ready || !user) return;
-    const destinationMode = adminSignIn ? 'organizer' : 'participant';
-    if (mode !== destinationMode) setMode(destinationMode);
+    if (mode !== roleIntent) setMode(roleIntent);
     nav(destination, { replace: true });
-  }, [adminSignIn, destination, mode, nav, ready, setMode, user]);
+  }, [destination, mode, nav, ready, roleIntent, setMode, user]);
 
   const resetMessages = () => {
     setTouched(false);
@@ -49,6 +52,11 @@ export default function SignIn() {
 
   const switchTab = (nextTab: Tab) => {
     setTab(nextTab);
+    resetMessages();
+  };
+
+  const switchRole = (nextRole: RoleIntent) => {
+    setRoleIntent(nextRole);
     resetMessages();
   };
 
@@ -69,15 +77,15 @@ export default function SignIn() {
     if (ok) setPassword('');
   };
 
-  const forgot = async () => {
-    setTouched(true);
-    const errors = validateSignIn({ email, password: 'unused-placeholder' });
-    if (errors.email) {
-      setFieldErrors({ email: errors.email });
+  const handleForgotSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const targetEmail = (resetEmail || email).trim().toLowerCase();
+    if (!targetEmail) {
+      setFieldErrors({ email: 'Please enter your email address.' });
       return;
     }
-    setFieldErrors({});
-    await resetPassword(email.trim().toLowerCase());
+    await resetPassword(targetEmail);
+    setShowForgotDialog(false);
   };
 
   const strength = passwordStrength(password);
@@ -91,31 +99,112 @@ export default function SignIn() {
     <Box sx={{ minHeight: '100vh', px: { xs: 2, sm: 3 }, py: { xs: 2, md: 3.5 }, background: c.surface, color: c.ink }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%', maxWidth: 1040, mx: 'auto', mb: { xs: 3, md: 4 } }}>
         <Brand />
-        <Button component={Link} to="/" variant="text" startIcon={<Icon name="arrow_back" size={18} />}>Back</Button>
+        <Stack direction="row" gap={1}>
+          <Button component={Link} to="/welcome" variant="text" startIcon={<Icon name="explore" size={18} />}>Onboarding</Button>
+          <Button component={Link} to="/" variant="text" startIcon={<Icon name="arrow_back" size={18} />}>Back</Button>
+        </Stack>
       </Stack>
 
-      <Box sx={{ width: '100%', maxWidth: 440, mx: 'auto' }}>
+      <Box sx={{ width: '100%', maxWidth: 460, mx: 'auto' }}>
         <Box component="form" onSubmit={(event) => void submit(event)} noValidate sx={{ p: { xs: 3, sm: 4 }, borderRadius: `${radius.panel}px`, background: c.surfaceCard, border: `1px solid ${c.outline}`, boxShadow: shadow.raised }}>
-          <Typography sx={{ fontSize: 13, fontWeight: 600, color: c.primaryInk, mb: 1.25 }}>{adminSignIn ? 'Administration' : tab === 'signin' ? 'Welcome back' : 'New to Podium'}</Typography>
-          <Typography component="h1" sx={{ fontSize: { xs: 29, sm: 33 }, fontWeight: 760, lineHeight: 1.1, letterSpacing: 0, mb: 1 }}>
-            {adminSignIn ? 'Sign in as admin' : tab === 'signin' ? 'Sign in to your account' : 'Create your account'}
+          
+          {/* Surface selector: Participant vs Organizer */}
+          <Stack direction="row" sx={{ p: 0.5, borderRadius: `${radius.field}px`, background: c.surfaceField, mb: 2.5 }}>
+            <Box
+              component="button"
+              type="button"
+              onClick={() => switchRole('participant')}
+              sx={{
+                flex: 1,
+                py: 1,
+                border: 'none',
+                cursor: 'pointer',
+                borderRadius: `${radius.chip}px`,
+                font: 'inherit',
+                fontSize: 13,
+                fontWeight: roleIntent === 'participant' ? 700 : 500,
+                background: roleIntent === 'participant' ? c.surfaceCard : 'transparent',
+                color: roleIntent === 'participant' ? c.ink : c.inkMuted,
+                boxShadow: roleIntent === 'participant' ? shadow.raised : 'none',
+                transition: `all 180ms ${ease}`,
+              }}
+            >
+              Participant
+            </Box>
+            <Box
+              component="button"
+              type="button"
+              onClick={() => switchRole('organizer')}
+              sx={{
+                flex: 1,
+                py: 1,
+                border: 'none',
+                cursor: 'pointer',
+                borderRadius: `${radius.chip}px`,
+                font: 'inherit',
+                fontSize: 13,
+                fontWeight: roleIntent === 'organizer' ? 700 : 500,
+                background: roleIntent === 'organizer' ? c.surfaceCard : 'transparent',
+                color: roleIntent === 'organizer' ? c.ink : c.inkMuted,
+                boxShadow: roleIntent === 'organizer' ? shadow.raised : 'none',
+                transition: `all 180ms ${ease}`,
+              }}
+            >
+              Organizer / Judge
+            </Box>
+          </Stack>
+
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: c.primaryInk, mb: 0.75 }}>
+            {roleIntent === 'organizer' ? 'Organization workspace' : 'Competitor account'}
           </Typography>
-          <Typography sx={{ fontSize: 13.5, lineHeight: 1.6, color: c.inkMuted, mb: 3 }}>
-            {adminSignIn ? 'Use the account that has organization access.' : 'Sign in to enter competitions and manage your submissions.'}
+          <Typography component="h1" sx={{ fontSize: { xs: 26, sm: 30 }, fontWeight: 760, lineHeight: 1.15, letterSpacing: 0, mb: 1 }}>
+            {tab === 'signin' ? 'Sign in to Podium' : 'Create your Podium account'}
+          </Typography>
+          <Typography sx={{ fontSize: 13.5, lineHeight: 1.55, color: c.inkMuted, mb: 2.75 }}>
+            {roleIntent === 'organizer'
+              ? 'Access challenge control rooms, build forms, and coordinate evaluations.'
+              : 'Sign in to enter competitions, manage submissions, and verify awards.'}
           </Typography>
 
-          {!adminSignIn && <Segmented value={tab} onChange={switchTab} />}
+          <Segmented value={tab} onChange={switchTab} />
           {error && <Message tone="error" icon="error" text={error} />}
           {notice && <Message tone="success" icon="mark_email_read" text={notice} />}
 
-          {!adminSignIn && <>
-            <Button type="button" variant="outlined" fullWidth disabled={busy} onClick={() => void signInGoogle()} startIcon={<GoogleMark />} sx={{ height: 50, mt: 2.5 }}>Continue with Google</Button>
-            <Divider sx={{ my: 2.25, fontSize: 11.5, color: c.inkFaint }}>or use email</Divider>
-          </>}
+          <Button
+            type="button"
+            variant="outlined"
+            fullWidth
+            disabled={busy}
+            onClick={() => void signInGoogle()}
+            startIcon={<GoogleMark />}
+            sx={{ height: 48, mt: 2.5 }}
+          >
+            Continue with Google
+          </Button>
+
+          <Divider sx={{ my: 2.25, fontSize: 11.5, color: c.inkFaint }}>or continue with email</Divider>
 
           <Stack gap={2}>
-            {tab === 'signup' && <TextField label="Your name" value={displayName} onChange={(event) => { setDisplayName(event.target.value); clearMessages(); }} autoComplete="name" placeholder="How people will see you" {...field('displayName')} />}
-            <TextField label="Email address" type="email" value={email} onChange={(event) => { setEmail(event.target.value); clearMessages(); }} autoComplete="email" autoFocus required {...field('email')} />
+            {tab === 'signup' && (
+              <TextField
+                label="Full name"
+                value={displayName}
+                onChange={(event) => { setDisplayName(event.target.value); clearMessages(); }}
+                autoComplete="name"
+                placeholder="How you will be identified"
+                {...field('displayName')}
+              />
+            )}
+            <TextField
+              label="Email address"
+              type="email"
+              value={email}
+              onChange={(event) => { setEmail(event.target.value); clearMessages(); }}
+              autoComplete="email"
+              autoFocus
+              required
+              {...field('email')}
+            />
             <Box>
               <TextField
                 fullWidth
@@ -125,33 +214,107 @@ export default function SignIn() {
                 onChange={(event) => { setPassword(event.target.value); clearMessages(); }}
                 autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
                 required
-                InputProps={{ endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Hide password' : 'Show password'} edge="end"><Icon name={showPassword ? 'visibility_off' : 'visibility'} size={20} /></IconButton></InputAdornment> }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        edge="end"
+                      >
+                        <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={20} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
                 {...field('password')}
               />
               {tab === 'signup' && password.length > 0 && <StrengthMeter strength={strength} tone={strengthTone} />}
-              {tab === 'signup' && <Typography sx={{ mt: 1, px: 0.5, fontSize: 11.5, color: c.inkFaint }}>At least {MIN_PASSWORD_LENGTH} characters.</Typography>}
+              {tab === 'signup' && (
+                <Typography sx={{ mt: 1, px: 0.5, fontSize: 11.5, color: c.inkFaint }}>
+                  Password must be at least {MIN_PASSWORD_LENGTH} characters.
+                </Typography>
+              )}
             </Box>
           </Stack>
 
-          <Button type="submit" variant="contained" fullWidth disabled={busy} sx={{ height: 52, mt: 2.75 }} startIcon={busy ? undefined : <Icon name={tab === 'signin' ? 'login' : 'person_add'} size={20} />}>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={busy}
+            sx={{ height: 50, mt: 2.75, fontSize: 15 }}
+            startIcon={busy ? undefined : <Icon name={tab === 'signin' ? 'login' : 'person_add'} size={20} />}
+          >
             {busy ? <CircularProgress size={20} sx={{ color: c.onPrimary }} /> : tab === 'signin' ? 'Sign in' : 'Create account'}
           </Button>
 
           {tab === 'signin' ? (
-            <Button type="button" variant="text" size="small" disabled={busy} onClick={() => void forgot()} sx={{ display: 'flex', mx: 'auto', mt: 1 }}>Forgot your password?</Button>
+            <Button
+              type="button"
+              variant="text"
+              size="small"
+              disabled={busy}
+              onClick={() => {
+                setResetEmail(email);
+                setShowForgotDialog(true);
+              }}
+              sx={{ display: 'flex', mx: 'auto', mt: 1.5 }}
+            >
+              Forgot your password?
+            </Button>
           ) : (
-            <Typography sx={{ mt: 1.5, fontSize: 11.5, lineHeight: 1.5, textAlign: 'center', color: c.inkFaint }}>Verify your email before accepting organization invitations.</Typography>
+            <Typography sx={{ mt: 1.75, fontSize: 12, lineHeight: 1.5, textAlign: 'center', color: c.inkFaint }}>
+              By creating an account, you agree to Podium’s competition terms and code of conduct.
+            </Typography>
           )}
 
-          {!adminSignIn && <Typography sx={{ mt: 2.5, pt: 2.25, borderTop: `1px solid ${c.outline}`, fontSize: 13, color: c.inkMuted, textAlign: 'center' }}>
-            {tab === 'signin' ? 'Need an account? ' : 'Already registered? '}
-            <InlineButton onClick={() => switchTab(tab === 'signin' ? 'signup' : 'signin')}>{tab === 'signin' ? 'Create one' : 'Sign in'}</InlineButton>
-          </Typography>}
+          <Typography sx={{ mt: 2.5, pt: 2.25, borderTop: `1px solid ${c.outline}`, fontSize: 13, color: c.inkMuted, textAlign: 'center' }}>
+            {tab === 'signin' ? 'Need a new account? ' : 'Already have an account? '}
+            <InlineButton onClick={() => switchTab(tab === 'signin' ? 'signup' : 'signin')}>
+              {tab === 'signin' ? 'Create one' : 'Sign in'}
+            </InlineButton>
+          </Typography>
         </Box>
 
-        <Stack direction="row" alignItems="center" justifyContent="center" gap={1} sx={{ mt: 2.25 }}>
+        {/* Forgot password modal */}
+        {showForgotDialog && (
+          <Box
+            component="form"
+            onSubmit={(e) => void handleForgotSubmit(e)}
+            sx={{
+              mt: 2,
+              p: 2.5,
+              borderRadius: `${radius.panel}px`,
+              background: c.surfaceField,
+              border: `1px solid ${c.outlineSoft}`,
+            }}
+          >
+            <Typography sx={{ fontSize: 14, fontWeight: 700, mb: 0.5 }}>Reset your password</Typography>
+            <Typography sx={{ fontSize: 12.5, color: c.inkMuted, mb: 1.5 }}>
+              Enter your email address and we will send you instructions to reset your password.
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              label="Email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              sx={{ mb: 1.5 }}
+            />
+            <Stack direction="row" gap={1} justifyContent="flex-end">
+              <Button size="small" variant="text" onClick={() => setShowForgotDialog(false)}>Cancel</Button>
+              <Button size="small" variant="contained" type="submit" disabled={busy}>Send reset email</Button>
+            </Stack>
+          </Box>
+        )}
+
+        <Stack direction="row" alignItems="center" justifyContent="center" gap={1} sx={{ mt: 2.5 }}>
           <Icon name="lock" size={16} color={c.inkFaint} />
-          <Typography sx={{ fontSize: 11.5, color: c.inkFaint }}>{adminSignIn ? 'Organization access is verified after sign-in.' : 'Your account keeps entries and results private.'}</Typography>
+          <Typography sx={{ fontSize: 12, color: c.inkFaint }}>
+            Secure authentication · Role-based workspace access
+          </Typography>
         </Stack>
       </Box>
     </Box>

@@ -27,18 +27,21 @@ export default function Landing() {
       <Header />
       <Box component="main" sx={{ width: '100%', maxWidth: 980, mx: 'auto', px: { xs: 2.5, sm: 4 }, pb: { xs: 6, md: 9 } }}>
         <Stack alignItems="center" textAlign="center" sx={{ py: { xs: 7, md: 10 } }}>
-          <Typography component="h1" sx={{ fontSize: { xs: 38, md: 52 }, fontWeight: 650, lineHeight: 1.14 }}>
-            Sign in to Podium
+          <Typography component="h1" sx={{ fontSize: { xs: 36, md: 52 }, fontWeight: 750, lineHeight: 1.12, letterSpacing: '-0.02em' }}>
+            The Operating System for Challenges
           </Typography>
-          <Typography sx={{ maxWidth: 520, mt: 1.5, color: c.inkMuted, fontSize: { xs: 15, md: 17 }, lineHeight: 1.6 }}>
-            Enter competitions, manage submissions, and track results from your dashboard.
+          <Typography sx={{ maxWidth: 580, mt: 2, color: c.inkMuted, fontSize: { xs: 15, md: 17.5 }, lineHeight: 1.6 }}>
+            Run hackathons, creative contests, and innovation sprints with visual form builders, weighted rubric evaluations, and verifiable credentials.
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} gap={1.5} sx={{ width: { xs: '100%', sm: 'auto' }, mt: 3.5 }}>
-            <Button component={Link} to="/signin" variant="contained" size="large" startIcon={<Icon name="login" size={20} />} sx={{ minWidth: 210 }}>
-              Sign in
+            <Button component={Link} to="/welcome" variant="contained" size="large" startIcon={<Icon name="explore" size={20} />} sx={{ minWidth: 190, height: 50 }}>
+              Get started
             </Button>
-            <Button component={Link} to="/signin?as=admin" variant="outlined" size="large" startIcon={<Icon name="admin_panel_settings" size={20} />} sx={{ minWidth: 210 }}>
-              Sign in as admin
+            <Button component={Link} to="/discover" variant="outlined" size="large" startIcon={<Icon name="search" size={20} />} sx={{ minWidth: 190, height: 50 }}>
+              Browse challenges
+            </Button>
+            <Button component={Link} to="/signin" variant="text" size="large" startIcon={<Icon name="login" size={20} />}>
+              Sign in
             </Button>
           </Stack>
         </Stack>
@@ -74,9 +77,14 @@ export default function Landing() {
 function Header() {
   return (
     <Stack component="header" direction="row" alignItems="center" sx={{ maxWidth: 1120, height: 72, mx: 'auto', px: { xs: 2.5, sm: 4 } }}>
-      <Stack direction="row" alignItems="center" gap={1.2} sx={{ flex: 1 }}>
+      <Stack component={Link} to="/" direction="row" alignItems="center" gap={1.2} sx={{ flex: 1, textDecoration: 'none', color: 'inherit' }}>
         <PodiumMark size={36} radius={12} />
-        <Typography sx={{ fontSize: 22, fontWeight: 700 }}>Podium</Typography>
+        <Typography sx={{ fontSize: 22, fontWeight: 750, letterSpacing: 0 }}>Podium</Typography>
+      </Stack>
+      <Stack direction="row" alignItems="center" gap={1.5}>
+        <Button component={Link} to="/discover" variant="text" size="small">Discover</Button>
+        <Button component={Link} to="/welcome" variant="text" size="small">How it works</Button>
+        <Button component={Link} to="/signin" variant="outlined" size="small">Sign in</Button>
       </Stack>
     </Stack>
   );
